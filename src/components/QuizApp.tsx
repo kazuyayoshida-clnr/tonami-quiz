@@ -1,58 +1,210 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import DoguFace from "./DoguFace";
-import ChatBubble from "./ChatBubble";
-import ChoiceButtons from "./ChoiceButtons";
-import { DoguMood, Message } from "@/lib/types";
+import Dogu from "./Dogu";
 import { questions } from "@/lib/questions";
 
-type Phase = "title" | "register" | "camera" | "quiz" | "result";
+type Phase = "title" | "warp" | "register" | "camera" | "quiz" | "result";
+type Mood = "idle" | "happy" | "think" | "correct" | "wrong" | "excited" | "talk";
+
+// ふりがなを振るユーティリティ（簡易版）
+function Ruby({ text, ruby }: { text: string; ruby: string }) {
+  return <ruby>{text}<rt style={{ fontSize: "0.6em", color: "#8B5E3C" }}>{ruby}</rt></ruby>;
+}
+
+// パーティクル背景
+function Particles() {
+  return (
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+      <style>{`
+        @keyframes float1{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh) rotate(720deg);opacity:0}}
+        @keyframes float2{0%{transform:translateY(100vh) translateX(0);opacity:0}50%{transform:translateY(50vh) translateX(30px);opacity:0.8}100%{transform:translateY(-10vh) translateX(-20px);opacity:0}}
+        ${Array.from({length:20},(_,i)=>`
+          .p${i}{
+            position:absolute;
+            left:${Math.random()*100}%;
+            width:${4+Math.random()*8}px;
+            height:${4+Math.random()*8}px;
+            background:${['#FFD700','#C8A96E','#E8C99A','#FFF8E7','#D4A853'][Math.floor(Math.random()*5)]};
+            border-radius:50%;
+            animation:float${Math.random()>0.5?1:2} ${8+Math.random()*12}s ${Math.random()*8}s infinite linear;
+            opacity:0.6;
+          }
+        `).join('')}
+      `}</style>
+      {Array.from({length:20},(_,i)=><div key={i} className={`p${i}`}/>)}
+    </div>
+  );
+}
+
+// タイムワープエフェクト
+function WarpEffect({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2800);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  const years = ["2024","1868","1603","1333","794","710","縄文","弥生","古墳"];
+
+  return (
+    <div style={{
+      position:"fixed", inset:0, background:"#000", zIndex:100,
+      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+      overflow:"hidden"
+    }}>
+      <style>{`
+        @keyframes warp-spin{0%{transform:rotate(0deg) scale(1);opacity:1}100%{transform:rotate(720deg) scale(0);opacity:0}}
+        @keyframes warp-in{0%{opacity:0;transform:scale(3)}100%{opacity:1;transform:scale(1)}}
+        @keyframes year-fly{0%{transform:translateY(100px) scale(0.5);opacity:0}30%{opacity:1}70%{opacity:1}100%{transform:translateY(-200px) scale(2);opacity:0}}
+        @keyframes tunnel{0%{transform:scale(0) rotate(0deg);opacity:0.8}100%{transform:scale(20) rotate(180deg);opacity:0}}
+        .warp-circle{animation:tunnel 2.8s ease-in forwards}
+        .year-item{animation:year-fly 0.4s ease-out forwards}
+      `}</style>
+
+      {/* トンネルエフェクト */}
+      {[1,2,3,4,5].map(i=>(
+        <div key={i} className="warp-circle" style={{
+          position:"absolute", width:`${i*60}px`, height:`${i*60}px`,
+          border:`${4-i*0.5}px solid`,
+          borderColor:['#FFD700','#C8A96E','#FFF','#D4A853','#8B5E3C'][i-1],
+          borderRadius:"50%",
+          animationDelay:`${i*0.1}s`,
+        }}/>
+      ))}
+
+      {/* 流れる年号 */}
+      <div style={{ position:"absolute", inset:0, display:"flex", flexWrap:"wrap", alignItems:"center", justifyContent:"center", gap:16 }}>
+        {years.map((y,i)=>(
+          <div key={y} className="year-item" style={{
+            color:["#FFD700","#FFF","#C8A96E","#E8C99A"][i%4],
+            fontSize:`${20+Math.random()*24}px`,
+            fontWeight:700,
+            fontFamily:"'Noto Serif JP', serif",
+            animationDelay:`${i*0.25}s`,
+            textShadow:"0 0 20px currentColor",
+          }}>{y}</div>
+        ))}
+      </div>
+
+      <p style={{ color:"#FFD700", fontSize:18, fontFamily:"'Noto Serif JP', serif", zIndex:10, textShadow:"0 0 20px #FFD700", animation:"warp-in 0.5s ease-out" }}>
+        とき を こえて…
+      </p>
+    </div>
+  );
+}
 
 export default function QuizApp() {
   const [phase, setPhase] = useState<Phase>("title");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [mood, setMood] = useState<Mood>("idle");
   const [qIndex, setQIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
-  const [doguMood, setDoguMood] = useState<DoguMood>("idle");
-  const [isTyping, setIsTyping] = useState(false);
-  const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [userName, setUserName] = useState("");
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [challengerNo, setChallengerNo] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [cameraError, setCameraError] = useState("");
+  const [doguMessage, setDoguMessage] = useState("いっしょに とき を たびしよう！");
+  const [showResult, setShowResult] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [cameraError, setCameraError] = useState("");
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [timerActive, setTimerActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const nameInputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // タイマー
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+    if (timerActive && timeLeft > 0) {
+      timerRef.current = setTimeout(() => setTimeLeft(t => t - 1), 1000);
+    } else if (timerActive && timeLeft === 0) {
+      handleTimeout();
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [timerActive, timeLeft]);
 
+  const handleTimeout = useCallback(() => {
+    if (selected !== null) return;
+    setSelected(-1);
+    setTimerActive(false);
+    setMood("wrong");
+    setDoguMessage(`じかん きれ！ せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎ いこう！`);
+    setTimeout(() => nextQuestion(false), 3000);
+  }, [selected, qIndex]);
+
+  const startQuestion = useCallback((idx: number) => {
+    setQIndex(idx);
+    setSelected(null);
+    setTimeLeft(30);
+    setTimerActive(true);
+    setMood("talk");
+    setDoguMessage(questions[idx].hint + "…ヒントだよ！");
+    setTimeout(() => setMood("think"), 1500);
+  }, []);
+
+  const startQuiz = useCallback(() => {
+    setScore(0);
+    setShowResult(false);
+    startQuestion(0);
+    setPhase("quiz");
+  }, [startQuestion]);
+
+  const nextQuestion = useCallback((correct: boolean) => {
+    const next = qIndex + 1;
+    if (next >= questions.length) {
+      setTimerActive(false);
+      setPhase("result");
+      setShowResult(true);
+      const fs = correct ? score + 1 : score;
+      if (fs === 10) setMood("excited");
+      else if (fs >= 7) setMood("happy");
+      else setMood("idle");
+      // 挑戦者登録
+      fetch("/api/challenger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: userName || "なまえなし", score: fs, photo: userPhoto }),
+      }).then(r => r.json()).then(d => {
+        if (d.no) { setChallengerNo(d.no); setTotalCount(d.count); }
+      }).catch(() => {});
+    } else {
+      setTimeout(() => startQuestion(next), 500);
+    }
+  }, [qIndex, score, userName, userPhoto, startQuestion]);
+
+  const handleAnswer = useCallback((idx: number) => {
+    if (selected !== null) return;
+    setSelected(idx);
+    setTimerActive(false);
+    const q = questions[qIndex];
+    const isCorrect = idx === q.answer;
+    if (isCorrect) {
+      setScore(s => s + 1);
+      setMood("correct");
+      setDoguMessage("やったー！ ⭐ せいかい！ " + q.explanation);
+    } else {
+      setMood("wrong");
+      setDoguMessage("ざんねん…💦 せいかいは「" + q.choices[q.answer] + "」だよ。" + q.explanation);
+    }
+    setTimeout(() => nextQuestion(isCorrect), 3500);
+  }, [selected, qIndex, nextQuestion]);
+
+  // カメラ
   const startCamera = useCallback(async () => {
-    setCameraError("");
-    setIsCameraReady(false);
+    setCameraError(""); setIsCameraReady(false);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => { videoRef.current?.play(); setIsCameraReady(true); };
       }
-    } catch {
-      setCameraError("カメラへのアクセスが許可されていません。");
-    }
+    } catch { setCameraError("カメラが つかえません。スキップして すすもう！"); }
   }, []);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach(t => t.stop());
-    streamRef.current = null;
-    setIsCameraReady(false);
+    streamRef.current = null; setIsCameraReady(false);
   }, []);
 
   useEffect(() => {
@@ -62,266 +214,246 @@ export default function QuizApp() {
 
   const takePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth || 320;
-    canvas.height = video.videoHeight || 240;
-    const ctx = canvas.getContext("2d");
+    const v = videoRef.current, c = canvasRef.current;
+    c.width = v.videoWidth || 320; c.height = v.videoHeight || 240;
+    const ctx = c.getContext("2d");
     if (!ctx) return;
-    ctx.save(); ctx.scale(-1, 1);
-    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-    ctx.restore();
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
-    setUserPhoto(dataUrl);
-    stopCamera();
-    beginQuiz(dataUrl);
-  }, [stopCamera]);
-
-  const addMessage = useCallback((role: "dogu" | "user", content: string, mood: DoguMood = "idle") => {
-    setMessages(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, role, content, mood }]);
-  }, []);
-
-  const typeMessage = useCallback(async (content: string, mood: DoguMood = "idle", delay = 800) => {
-    setIsTyping(true); setDoguMood("think");
-    await new Promise(r => setTimeout(r, delay));
-    setIsTyping(false); setDoguMood(mood);
-    addMessage("dogu", content, mood);
-  }, [addMessage]);
-
-  const beginQuiz = useCallback(async (photo?: string | null) => {
-    setMessages([]); setQIndex(0); setScore(0); setSelected(null);
-    if (photo !== undefined) setUserPhoto(photo);
-    setPhase("quiz");
-    const name = userName.trim() || "匿名の挑戦者";
-    await typeMessage(
-      `ぬぅ…目覚めたぞ。わしは砺波の土偶じゃ🏺\n\n${name}よ、よく来た！\n砺波正倉の古文書から謎解きクイズ全10問じゃ。\n\n流送・交易・寺子屋・古代の砺波…\n砺波の歴史の深さを思い知るがよい！`,
-      "excited", 1200
-    );
-    await typeMessage(questions[0].question + "\n\nヒント：" + questions[0].hint, "think", 1000);
-  }, [typeMessage, userName]);
-
-  const registerChallenger = useCallback(async (finalScore: number, photo: string | null) => {
-    try {
-      const res = await fetch("/api/challenger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: userName.trim() || "匿名の挑戦者", score: finalScore, photo }),
-      });
-      const data = await res.json();
-      if (data.no) { setChallengerNo(data.no); setTotalCount(data.count); }
-    } catch { /* オフライン時はスキップ */ }
-  }, [userName]);
-
-  const handleAnswer = useCallback(async (idx: number) => {
-    if (selected !== null || phase !== "quiz") return;
-    setSelected(idx);
-    const q = questions[qIndex];
-    const isCorrect = idx === q.answer;
-    if (isCorrect) setScore(s => s + 1);
-    addMessage("user", `「${"ＡＢＣＤ"[idx]}：${q.choices[idx]}」を選択`);
-    if (isCorrect) {
-      await typeMessage(`正解じゃ！⭐\n\n${q.explanation}\n\n次の謎へ進もうぞ…`, "correct", 900);
-    } else {
-      await typeMessage(`惜しい…正解は「${q.choices[q.answer]}」じゃ。\n\n${q.explanation}\n\n次の謎へ進もうぞ…`, "wrong", 900);
-    }
-    setTimeout(async () => {
-      const next = qIndex + 1;
-      if (next >= questions.length) {
-        const fs = isCorrect ? score + 1 : score;
-        await registerChallenger(fs, userPhoto);
-        const msg =
-          fs === 10 ? `満点じゃ！！🎉 砺波の歴史を完全に会得したな！殿堂入りおめでとう！` :
-          fs >= 7   ? `${fs}問正解！素晴らしい洞察力じゃ！` :
-          fs >= 4   ? `${fs}問正解じゃ。まだまだ修行が必要じゃが、素質はある！` :
-                      `${fs}問正解…古文書の深みは計り知れぬ。またわしと学ぼうぞ。`;
-        await typeMessage(msg, "happy", 600);
-        setPhase("result");
-      } else {
-        setQIndex(next); setSelected(null);
-        await typeMessage(questions[next].question + "\n\nヒント：" + questions[next].hint, "think", 600);
-      }
-    }, 3200);
-  }, [selected, phase, qIndex, score, addMessage, typeMessage, registerChallenger, userPhoto]);
+    ctx.save(); ctx.scale(-1,1); ctx.drawImage(v,-c.width,0,c.width,c.height); ctx.restore();
+    setUserPhoto(c.toDataURL("image/jpeg", 0.8));
+    stopCamera(); startQuiz();
+  }, [stopCamera, startQuiz]);
 
   const reset = () => {
-    setPhase("title"); setMessages([]); setScore(0); setQIndex(0);
-    setSelected(null); setDoguMood("idle"); setUserPhoto(null);
-    setUserName(""); setChallengerNo(null); setTotalCount(null); setCameraError("");
+    setPhase("title"); setMood("idle"); setScore(0); setQIndex(0);
+    setSelected(null); setUserPhoto(null); setUserName("");
+    setChallengerNo(null); setTotalCount(null); setShowResult(false);
+    setTimerActive(false); setTimeLeft(30);
+    setDoguMessage("いっしょに とき を たびしよう！");
   };
 
-  const currentQ = questions[qIndex];
-  const finalScore = score;
+  const q = questions[qIndex];
+  const btnColors = ["#E8392A","#2A6AE8","#2AAE2A","#E8A02A"];
+  const btnLabels = ["Ａ","Ｂ","Ｃ","Ｄ"];
 
   return (
-    <div style={{ height:"100dvh", display:"flex", flexDirection:"column", background:"#1A0E05" }}>
+    <div style={{ minHeight:"100dvh", background:"#1A0A00", fontFamily:"'Noto Sans JP', sans-serif", position:"relative", overflow:"hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Noto+Sans+JP:wght@400;500&display=swap');
-        @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-        input::placeholder{color:#5C3D1E}
-        input:focus{outline:none;border-color:#C8B89A !important}
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes titleGlow{0%,100%{text-shadow:0 0 20px #FFD700,0 0 40px #C8A96E}50%{text-shadow:0 0 40px #FFD700,0 0 80px #C8A96E,0 0 120px #FFF8E7}}
+        @keyframes btnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+        @keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+        .title-text{animation:titleGlow 2s ease-in-out infinite}
+        .start-btn{animation:btnPulse 2s ease-in-out infinite}
+        .timer-urgent{animation:timerPulse 0.5s ease-in-out infinite;color:#FF4444 !important}
+        ruby rt{font-size:0.55em;color:#C8A96E}
       `}</style>
 
-      {/* ヘッダー */}
-      <div style={{ background:"#2C1A0E", borderBottom:"0.5px solid #5C3D1E", padding:"12px 20px", display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
-        <DoguFace mood={doguMood} size={40} />
-        <div style={{ flex:1 }}>
-          <p style={{ margin:0, fontSize:15, fontWeight:600, color:"#F5EFE0", fontFamily:"'Noto Serif JP', serif", letterSpacing:"0.1em" }}>砺波の土偶 謎解きクイズ</p>
-          <p style={{ margin:0, fontSize:11, color:"#9A7A5A" }}>
-            {phase==="title"?"砺波正倉の古文書から出題":
-             phase==="register"?"挑戦者登録":
-             phase==="camera"?"写真撮影":
-             phase==="quiz"?`第${qIndex+1}問 / 全${questions.length}問`:"全問終了"}
-          </p>
-        </div>
-        {(phase==="quiz"||phase==="result") && (
-          <button onClick={reset} style={{ padding:"6px 14px", background:"transparent", border:"0.5px solid #5C3D1E", borderRadius:6, color:"#9A7A5A", fontSize:12, cursor:"pointer" }}>最初から</button>
-        )}
-        <a href="/hall-of-fame" style={{ padding:"6px 14px", background:"transparent", border:"0.5px solid #5C3D1E", borderRadius:6, color:"#9A7A5A", fontSize:12, textDecoration:"none" }}>🏆殿堂</a>
-      </div>
+      {phase !== "warp" && <Particles />}
 
-      {/* スコアバー */}
-      {(phase==="quiz"||phase==="result") && (
-        <div style={{ display:"flex", alignItems:"center", gap:12, padding:"8px 16px", background:"#2C1A0E", borderBottom:"0.5px solid #5C3D1E", flexShrink:0 }}>
-          <span style={{ fontSize:12, color:"#C8B89A", fontFamily:"'Noto Sans JP', sans-serif" }}>問 {Math.min(qIndex+(selected!==null?1:0),questions.length)} / {questions.length}</span>
-          <div style={{ flex:1, height:4, background:"#5C3D1E", borderRadius:2, overflow:"hidden" }}>
-            <div style={{ height:"100%", background:"#C8B89A", borderRadius:2, transition:"width 0.4s ease", width:`${(Math.min(qIndex+(selected!==null?1:0),questions.length)/questions.length)*100}%` }} />
+      {/* ワープエフェクト */}
+      {phase === "warp" && <WarpEffect onDone={() => setPhase("register")} />}
+
+      {/* ────── タイトル画面 ────── */}
+      {phase === "title" && (
+        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, textAlign:"center" }}>
+          {/* ロゴ */}
+          <div style={{ marginBottom:8 }}>
+            <p style={{ color:"#C8A96E", fontSize:13, letterSpacing:"0.3em", margin:"0 0 8px", fontFamily:"'Noto Serif JP',serif" }}>となみしょうそう</p>
+            <h1 className="title-text" style={{ color:"#FFD700", fontSize:32, fontWeight:700, margin:0, fontFamily:"'Noto Serif JP',serif", letterSpacing:"0.15em", lineHeight:1.3 }}>
+              ほほえみの土偶と<br/>ゆく！<br/>となみれきし<br/>なぞとき
+            </h1>
           </div>
-          <span style={{ fontSize:12, color:"#C8B89A", fontFamily:"'Noto Sans JP', sans-serif" }}>正解 {score}問</span>
-        </div>
-      )}
 
-      {/* タイトル画面 */}
-      {phase==="title" && (
-        <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
-          <DoguFace mood="idle" size={100} />
-          <p style={{ color:"#C8B89A", fontSize:18, margin:"20px 0 8px", fontFamily:"'Noto Serif JP', serif", letterSpacing:"0.15em", textAlign:"center" }}>砺波正倉<br/>謎解きクイズ</p>
-          <p style={{ color:"#7A5A3A", fontSize:13, margin:"0 0 32px", fontFamily:"'Noto Sans JP', sans-serif", textAlign:"center", lineHeight:1.8 }}>
-            砺波の流送・交易・寺子屋・古代史…<br/>全10問の謎に挑め！
-          </p>
-          <button onClick={() => setPhase("register")} style={{ width:240, padding:"14px", background:"#7B6A4E", color:"#F5EFE0", border:"none", borderRadius:10, fontSize:15, fontFamily:"'Noto Serif JP', serif", letterSpacing:"0.1em", cursor:"pointer", marginBottom:12 }}>
-            挑戦を始める 🏺
+          {/* ドーグちゃん */}
+          <div style={{ margin:"16px 0" }}>
+            <Dogu mood="excited" size={130} />
+          </div>
+
+          {/* セリフ */}
+          <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", marginBottom:24, maxWidth:300 }}>
+            <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
+              ぬぅ〜！わしは<br/>「ドーグちゃん」じゃ🏺<br/>いっしょに じかんを たびして<br/>となみの れきしを まなぼうぞ！
+            </p>
+          </div>
+
+          <button className="start-btn" onClick={() => setPhase("warp")} style={{
+            padding:"16px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)",
+            color:"#3B1F0A", border:"none", borderRadius:50, fontSize:18,
+            fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif",
+            boxShadow:"0 4px 20px rgba(255,215,0,0.5)", letterSpacing:"0.1em", marginBottom:16
+          }}>
+            ✨ たびに でかける！
           </button>
-          <a href="/hall-of-fame" style={{ fontSize:13, color:"#7A5A3A", fontFamily:"'Noto Sans JP', sans-serif" }}>🏆 満点殿堂を見る</a>
+
+          <a href="/hall-of-fame" style={{ color:"#C8A96E", fontSize:13, textDecoration:"none", fontFamily:"'Noto Sans JP',sans-serif" }}>
+            🏆 まんてん でんどう を みる
+          </a>
         </div>
       )}
 
-      {/* 登録画面 */}
-      {phase==="register" && (
-        <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
-          <div style={{ width:"100%", maxWidth:380 }}>
-            <div style={{ textAlign:"center", marginBottom:24 }}>
-              <DoguFace mood="excited" size={72} />
-              <p style={{ color:"#C8B89A", fontSize:15, margin:"12px 0 4px", fontFamily:"'Noto Serif JP', serif" }}>挑戦者よ、名を名乗れ！</p>
-              <p style={{ color:"#7A5A3A", fontSize:12, margin:0, fontFamily:"'Noto Sans JP', sans-serif" }}>（入力しなくても進めます）</p>
-            </div>
-            <input
-              ref={nameInputRef}
-              type="text"
-              value={userName}
-              onChange={e => setUserName(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && setPhase("camera")}
-              placeholder="お名前を入力（任意）"
-              maxLength={20}
-              style={{
-                width:"100%", padding:"14px 16px", background:"#2C1A0E",
-                border:"0.5px solid #5C3D1E", borderRadius:8, color:"#F5EFE0",
-                fontSize:15, fontFamily:"'Noto Sans JP', sans-serif",
-                boxSizing:"border-box", marginBottom:16,
-              }}
-            />
-            <button onClick={() => setPhase("camera")} style={{ width:"100%", padding:"14px", background:"#7B6A4E", color:"#F5EFE0", border:"none", borderRadius:10, fontSize:15, fontFamily:"'Noto Serif JP', serif", cursor:"pointer", marginBottom:10 }}>
-              次へ（写真を撮る）→
-            </button>
-            <button onClick={() => beginQuiz(null)} style={{ width:"100%", padding:"12px", background:"transparent", color:"#7A5A3A", border:"0.5px solid #5C3D1E", borderRadius:10, fontSize:13, fontFamily:"'Noto Sans JP', sans-serif", cursor:"pointer" }}>
-              写真なしで始める
-            </button>
+      {/* ────── とうろく画面 ────── */}
+      {phase === "register" && (
+        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
+          <Dogu mood="talk" size={100} />
+          <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", margin:"12px 0 20px", maxWidth:300, textAlign:"center" }}>
+            <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
+              なまえを おしえてくれ！<br/>（なしでも だいじょうぶじゃ）
+            </p>
           </div>
+          <input
+            type="text" value={userName} onChange={e => setUserName(e.target.value)}
+            onKeyDown={e => e.key==="Enter" && setPhase("camera")}
+            placeholder="なまえを にゅうりょく" maxLength={12}
+            style={{
+              width:"100%", maxWidth:320, padding:"14px 16px",
+              background:"rgba(255,255,255,0.1)", border:"2px solid #C8A96E",
+              borderRadius:12, color:"#FFE8A0", fontSize:18, textAlign:"center",
+              fontFamily:"'Noto Sans JP',sans-serif", marginBottom:16, boxSizing:"border-box"
+            }}
+          />
+          <button onClick={() => setPhase("camera")} style={{
+            width:"100%", maxWidth:320, padding:"14px",
+            background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A",
+            border:"none", borderRadius:50, fontSize:16, fontWeight:700,
+            cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10
+          }}>📷 しゃしんを とる →</button>
+          <button onClick={() => startQuiz()} style={{
+            width:"100%", maxWidth:320, padding:"12px",
+            background:"transparent", color:"#C8A96E",
+            border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14,
+            cursor:"pointer", fontFamily:"'Noto Sans JP',sans-serif"
+          }}>しゃしんなしで はじめる</button>
         </div>
       )}
 
-      {/* カメラ画面 */}
-      {phase==="camera" && (
-        <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, gap:16 }}>
-          <p style={{ color:"#C8B89A", fontSize:14, margin:0, fontFamily:"'Noto Serif JP', serif" }}>顔を中央に合わせて撮影じゃ🏺</p>
-          <div style={{ position:"relative", width:"100%", maxWidth:360, borderRadius:12, overflow:"hidden", background:"#2C1A0E", border:"0.5px solid #5C3D1E", aspectRatio:"4/3" }}>
+      {/* ────── カメラ画面 ────── */}
+      {phase === "camera" && (
+        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, gap:16 }}>
+          <Dogu mood="excited" size={80} />
+          <p style={{ color:"#FFE8A0", fontSize:15, fontFamily:"'Noto Serif JP',serif" }}>かおを まんなかに あわせてね📷</p>
+          <div style={{ position:"relative", width:"100%", maxWidth:360, borderRadius:16, overflow:"hidden", background:"#2C1A0E", border:"2px solid #C8A96E", aspectRatio:"4/3" }}>
             <video ref={videoRef} autoPlay playsInline muted style={{ width:"100%", height:"100%", objectFit:"cover", transform:"scaleX(-1)", display:isCameraReady?"block":"none" }} />
-            {!isCameraReady && !cameraError && (
-              <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                <p style={{ color:"#7A5A3A", fontSize:13 }}>カメラ起動中…</p>
-              </div>
-            )}
-            {cameraError && (
-              <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
-                <p style={{ color:"#F09595", fontSize:12, textAlign:"center" }}>{cameraError}</p>
-              </div>
-            )}
+            {!isCameraReady && !cameraError && <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}><p style={{ color:"#C8A96E" }}>カメラ きどうちゅう…</p></div>}
+            {cameraError && <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}><p style={{ color:"#FF9090", textAlign:"center", fontSize:13 }}>{cameraError}</p></div>}
           </div>
           <canvas ref={canvasRef} style={{ display:"none" }} />
-          <div style={{ display:"flex", flexDirection:"column", gap:10, width:"100%", maxWidth:360 }}>
-            {isCameraReady && (
-              <button onClick={takePhoto} style={{ padding:"14px", background:"#7B6A4E", color:"#F5EFE0", border:"none", borderRadius:10, fontSize:15, fontFamily:"'Noto Serif JP', serif", cursor:"pointer" }}>
-                📸 撮影する
-              </button>
-            )}
-            <button onClick={() => beginQuiz(null)} style={{ padding:"12px", background:"transparent", color:"#7A5A3A", border:"0.5px solid #5C3D1E", borderRadius:10, fontSize:13, fontFamily:"'Noto Sans JP', sans-serif", cursor:"pointer" }}>
-              スキップして始める
+          {isCameraReady && (
+            <button onClick={takePhoto} style={{ padding:"14px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif" }}>
+              📸 とる！
             </button>
+          )}
+          <button onClick={() => startQuiz()} style={{ padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, cursor:"pointer" }}>
+            スキップして はじめる
+          </button>
+        </div>
+      )}
+
+      {/* ────── クイズ画面 ────── */}
+      {phase === "quiz" && q && (
+        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column" }}>
+
+          {/* ステータスバー */}
+          <div style={{ background:"linear-gradient(135deg,#3B1F0A,#5C3317)", padding:"10px 16px", display:"flex", alignItems:"center", gap:10, borderBottom:"2px solid #C8A96E" }}>
+            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:8, padding:"4px 10px", border:"1px solid #C8A96E" }}>
+              <p style={{ margin:0, fontSize:11, color:"#C8A96E" }}>だい</p>
+              <p style={{ margin:0, fontSize:18, color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif" }}>{qIndex+1}<span style={{ fontSize:11, color:"#C8A96E" }}>もん</span></p>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ height:8, background:"rgba(0,0,0,0.4)", borderRadius:4, overflow:"hidden", border:"1px solid #C8A96E" }}>
+                <div style={{ height:"100%", background:"linear-gradient(90deg,#FFD700,#C8A96E)", width:`${((qIndex)/questions.length)*100}%`, transition:"width 0.5s ease", borderRadius:4 }} />
+              </div>
+              <p style={{ margin:"4px 0 0", fontSize:11, color:"#C8A96E", textAlign:"center" }}>せいかい {score}もん / {questions.length}もん</p>
+            </div>
+            {/* タイマー */}
+            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:8, padding:"4px 10px", border:"1px solid #C8A96E", textAlign:"center", minWidth:50 }}>
+              <p style={{ margin:0, fontSize:10, color:"#C8A96E" }}>TIME</p>
+              <p className={timeLeft <= 5 ? "timer-urgent" : ""} style={{ margin:0, fontSize:20, color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif" }}>{timeLeft}</p>
+            </div>
+            {/* ユーザー写真 */}
+            {userPhoto && <img src={userPhoto} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover", border:"2px solid #C8A96E", flexShrink:0 }} alt="you" />}
+          </div>
+
+          {/* ドーグちゃん + セリフ */}
+          <div style={{ display:"flex", alignItems:"flex-end", gap:12, padding:"12px 16px", background:"linear-gradient(180deg,#2C1005,#1A0A00)" }}>
+            <Dogu mood={mood} size={80} />
+            <div style={{ flex:1, background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:"16px 16px 16px 4px", padding:"10px 14px", maxWidth:260, animation:"slideIn 0.3s ease" }}>
+              <p style={{ margin:0, fontSize:13, color:"#FFE8A0", lineHeight:1.7, fontFamily:"'Noto Serif JP',serif" }}>{doguMessage}</p>
+            </div>
+          </div>
+
+          {/* 問題文 */}
+          <div style={{ margin:"0 12px 10px", background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.95))", border:"2px solid #C8A96E", borderRadius:16, padding:"14px 16px", boxShadow:"0 4px 16px rgba(0,0,0,0.5)", animation:"fadeUp 0.4s ease" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+              <span style={{ background:"#FFD700", color:"#3B1F0A", fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>{q.category}</span>
+              <span style={{ fontSize:11, color:"#C8A96E" }}>{'★'.repeat(2)}</span>
+            </div>
+            <p style={{ margin:0, fontSize:15, color:"#FFE8A0", lineHeight:1.8, fontFamily:"'Noto Serif JP',serif", fontWeight:500 }}>{q.question}</p>
+          </div>
+
+          {/* 選択肢（ゲームパッド風） */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:"0 12px 16px" }}>
+            {q.choices.map((c, i) => {
+              let bg = `linear-gradient(135deg,${btnColors[i]},${btnColors[i]}CC)`;
+              let border = "2px solid rgba(255,255,255,0.2)";
+              let opacity = 1;
+              if (selected !== null) {
+                if (i === q.answer) { bg = "linear-gradient(135deg,#1D9E75,#0F6E56)"; border = "2px solid #4DFFC0"; }
+                else if (i === selected && i !== q.answer) { bg = "linear-gradient(135deg,#8A1A1A,#600)"; border = "2px solid #FF6B6B"; }
+                else { opacity = 0.4; }
+              }
+              return (
+                <button key={i} onClick={() => selected===null && handleAnswer(i)}
+                  style={{
+                    padding:"14px 10px", background:bg, border, borderRadius:12,
+                    color:"#FFF", fontSize:14, fontWeight:700, cursor:selected===null?"pointer":"default",
+                    fontFamily:"'Noto Sans JP',sans-serif", textAlign:"left", lineHeight:1.5,
+                    boxShadow:"0 3px 10px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s",
+                    display:"flex", alignItems:"center", gap:8,
+                  }}>
+                  <span style={{ fontSize:18, fontWeight:700, opacity:0.9 }}>{btnLabels[i]}</span>
+                  <span style={{ fontSize:13 }}>{c}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* チャット画面 */}
-      {(phase==="quiz"||phase==="result") && (
-        <div style={{ flex:1, overflowY:"auto", padding:"16px 20px" }}>
-          {messages.map(msg => (
-            <ChatBubble key={msg.id} role={msg.role} content={msg.content} mood={msg.mood} userPhoto={userPhoto} />
-          ))}
-          {isTyping && <ChatBubble role="dogu" mood="think" isTyping userPhoto={userPhoto} />}
-          {phase==="quiz" && !isTyping && currentQ && (
-            <ChoiceButtons choices={currentQ.choices} onSelect={handleAnswer} selected={selected} correct={currentQ.answer} />
+      {/* ────── けっか画面 ────── */}
+      {phase === "result" && (
+        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, textAlign:"center" }}>
+          <Dogu mood={score===10?"excited":score>=7?"happy":score>=4?"idle":"wrong"} size={120} />
+
+          {userPhoto && <img src={userPhoto} style={{ width:60, height:60, borderRadius:"50%", objectFit:"cover", border:"3px solid #FFD700", margin:"8px auto" }} alt="you" />}
+          {userName && <p style={{ color:"#FFE8A0", fontSize:16, margin:"4px 0", fontFamily:"'Noto Serif JP',serif" }}>{userName}</p>}
+          {challengerNo && <p style={{ color:"#C8A96E", fontSize:12, margin:"2px 0 12px" }}>ちょうせんしゃ No.{challengerNo} ／ これまで {totalCount?.toLocaleString()}にんが ちょうせん！</p>}
+
+          <div style={{ background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.9))", border:"2px solid #FFD700", borderRadius:20, padding:"20px 32px", marginBottom:20, boxShadow:"0 0 30px rgba(255,215,0,0.3)" }}>
+            <p style={{ color:"#C8A96E", fontSize:14, margin:"0 0 4px", fontFamily:"'Noto Sans JP',sans-serif" }}>せいかい すう</p>
+            <p style={{ color:"#FFD700", fontSize:64, fontWeight:700, margin:0, fontFamily:"'Noto Serif JP',serif", textShadow:"0 0 20px #FFD700" }}>
+              {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{questions.length}</span>
+            </p>
+            <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Noto Serif JP',serif" }}>
+              {score===10?"🏆 かんぜん せいは！ でんどういり！":
+               score>=7?"🌟 すごい！ れきし はかせに ちかい！":
+               score>=4?"📚 もうすこし！ がんばれ！":"🔍 いっしょに もっと まなぼうぞ！"}
+            </p>
+          </div>
+
+          {score===10 && (
+            <a href="/hall-of-fame" style={{ display:"block", marginBottom:12, padding:"10px 24px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", borderRadius:50, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"'Noto Serif JP',serif" }}>
+              🏆 でんどうを みる
+            </a>
           )}
 
-          {/* 結果 */}
-          {phase==="result" && !isTyping && (
-            <div style={{ margin:"24px 0", padding:"24px", background:"#2C1A0E", borderRadius:12, border:"0.5px solid #5C3D1E", textAlign:"center", animation:"fadeUp 0.4s ease" }}>
-              {userPhoto ? (
-                <img src={userPhoto} style={{ width:80, height:80, borderRadius:"50%", objectFit:"cover", border:"2px solid #7B6A4E", marginBottom:8 }} alt="プレイヤー" />
-              ) : (
-                <DoguFace mood={finalScore>=7?"happy":finalScore>=4?"idle":"wrong"} size={80} />
-              )}
-              {userName && <p style={{ color:"#C8B89A", fontSize:14, margin:"8px 0 0", fontFamily:"'Noto Serif JP', serif" }}>{userName}</p>}
-              {challengerNo && (
-                <p style={{ color:"#7A5A3A", fontSize:12, margin:"4px 0 0", fontFamily:"'Noto Sans JP', sans-serif" }}>
-                  挑戦者 No.{challengerNo}
-                  {totalCount && ` ／ 累計 ${totalCount.toLocaleString()}人が挑戦`}
-                </p>
-              )}
-              <p style={{ fontSize:52, fontWeight:700, color:"#C8B89A", margin:"12px 0 4px", fontFamily:"'Noto Serif JP', serif" }}>
-                {finalScore} <span style={{ fontSize:20, color:"#7A5A3A" }}>/ 10</span>
-              </p>
-              <p style={{ color:"#9A7A5A", fontSize:13, margin:"0 0 8px", fontFamily:"'Noto Sans JP', sans-serif" }}>
-                {finalScore===10?"🏆 完全制覇！殿堂入りおめでとう！":
-                 finalScore>=7?"優秀な探求者よ！":
-                 finalScore>=4?"まだまだ修行じゃ":"古文書をもっと読むがよい"}
-              </p>
-              {finalScore===10 && (
-                <a href="/hall-of-fame" style={{ display:"inline-block", marginBottom:16, padding:"8px 20px", background:"#C8B89A", color:"#1A0E05", borderRadius:6, fontSize:13, fontFamily:"'Noto Serif JP', serif", textDecoration:"none", fontWeight:600 }}>
-                  🏆 殿堂を見る
-                </a>
-              )}
-              <div style={{ display:"flex", gap:10, justifyContent:"center" }}>
-                <button onClick={() => { setPhase("register"); setScore(0); setQIndex(0); setSelected(null); setMessages([]); setChallengerNo(null); }} style={{ padding:"10px 20px", background:"#7B6A4E", color:"#F5EFE0", border:"none", borderRadius:8, fontSize:14, cursor:"pointer", fontFamily:"'Noto Serif JP', serif" }}>
-                  もう一度挑む
-                </button>
-                <button onClick={reset} style={{ padding:"10px 20px", background:"transparent", color:"#9A7A5A", border:"0.5px solid #5C3D1E", borderRadius:8, fontSize:14, cursor:"pointer", fontFamily:"'Noto Sans JP', sans-serif" }}>
-                  タイトルへ
-                </button>
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
+          <button onClick={() => { reset(); setTimeout(() => setPhase("warp"),100); setTimeout(()=>setPhase("register"),2900); }} style={{ width:"100%", maxWidth:300, padding:"14px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10 }}>
+            もう いちど ちょうせん！
+          </button>
+          <button onClick={reset} style={{ color:"#C8A96E", background:"transparent", border:"1.5px solid #C8A96E", borderRadius:50, padding:"10px 24px", fontSize:13, cursor:"pointer" }}>
+            タイトルに もどる
+          </button>
         </div>
       )}
     </div>
