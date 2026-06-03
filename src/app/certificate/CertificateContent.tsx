@@ -77,7 +77,7 @@ export default function CertificateContent() {
 
         {/* タイトル */}
         <p style={{ textAlign:"center", fontSize:11, letterSpacing:"0.4em", color:"#8B5E3C", margin:"0 0 4px" }}>
-          となみしょうそ
+          砺波市埋蔵文化財センター
         </p>
         <h1 style={{
           textAlign: "center", fontSize: 26, fontWeight: 700,

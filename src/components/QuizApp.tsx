@@ -258,7 +258,7 @@ export default function QuizApp() {
       {phase === "title" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, textAlign:"center" }}>
           <div style={{ marginBottom:8 }}>
-            <p style={{ color:"#C8A96E", fontSize:13, letterSpacing:"0.3em", margin:"0 0 8px", fontFamily:"'Noto Serif JP',serif" }}>となみしょうそ</p>
+            <p style={{ color:"#C8A96E", fontSize:13, letterSpacing:"0.3em", margin:"0 0 8px", fontFamily:"'Noto Serif JP',serif" }}>砺波市埋蔵文化財センター</p>
             <h1 className="title-text" style={{ color:"#FFD700", fontSize:32, fontWeight:700, margin:0, fontFamily:"'Noto Serif JP',serif", letterSpacing:"0.15em", lineHeight:1.3 }}>
               ほほえみの土偶と<br/>ゆく<br/>となみれきし<br/>なぞとき
             </h1>
@@ -268,7 +268,7 @@ export default function QuizApp() {
           </div>
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", marginBottom:24, maxWidth:300 }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              ねえ！わしは<br/>「ドーグちゃん」じゃ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうぞ！
+              ねえ！わしは<br/>「ドーグちゃん」だよ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうね！
             </p>
           </div>
           <button className="start-btn" onClick={() => setPhase("warp")} style={{
@@ -291,7 +291,7 @@ export default function QuizApp() {
           <Dogu mood="talk" size={100} />
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", margin:"12px 0 20px", maxWidth:300, textAlign:"center" }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              なまえを おしえてくれ！<br/>（なしでもいいぞ じゃ！）
+              なまえを おしえてくれ！<br/>（なしでもいいよ！）
             </p>
           </div>
           <input
@@ -417,9 +417,9 @@ export default function QuizApp() {
               {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{questions.length}</span>
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Noto Serif JP',serif" }}>
-              {score===10?"🏆 かんぺき！せいかいはぜんぶじゃ！":
+              {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":
                score>=7?"🎉 すごい！れきしはかせにちかい！":
-               score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうぞ！"}
+               score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
             </p>
           </div>
 
