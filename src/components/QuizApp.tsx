@@ -6,10 +6,6 @@ import { questions } from "@/lib/questions";
 type Phase = "title" | "warp" | "register" | "camera" | "quiz" | "result";
 type Mood = "idle" | "happy" | "think" | "correct" | "wrong" | "excited" | "talk";
 
-function Ruby({ text, ruby }: { text: string; ruby: string }) {
-  return <ruby>{text}<rt style={{ fontSize: "0.6em", color: "#8B5E3C" }}>{ruby}</rt></ruby>;
-}
-
 function Particles() {
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
@@ -49,7 +45,6 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
       overflow:"hidden"
     }}>
       <style>{`
-        @keyframes warp-spin{0%{transform:rotate(0deg) scale(1);opacity:1}100%{transform:rotate(720deg) scale(0);opacity:0}}
         @keyframes warp-in{0%{opacity:0;transform:scale(3)}100%{opacity:1;transform:scale(1)}}
         @keyframes year-fly{0%{transform:translateY(100px) scale(0.5);opacity:0}30%{opacity:1}70%{opacity:1}100%{transform:translateY(-200px) scale(2);opacity:0}}
         @keyframes tunnel{0%{transform:scale(0) rotate(0deg);opacity:0.8}100%{transform:scale(20) rotate(180deg);opacity:0}}
@@ -94,7 +89,7 @@ export default function QuizApp() {
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [challengerNo, setChallengerNo] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [doguMessage, setDoguMessage] = useState("いっしょに となみたびをしよう！");
+  const [doguMessage, setDoguMessage] = useState("いっしょに となみたびをしようね！");
   const [showResult, setShowResult] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState("");
@@ -119,7 +114,7 @@ export default function QuizApp() {
     setSelected(-1);
     setTimerActive(false);
     setMood("wrong");
-    setDoguMessage(`じかんぎれ！せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎがんばろ～`);
+    setDoguMessage(`じかんぎれ！せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎがんばろうね！`);
     setTimeout(() => nextQuestion(false), 3000);
   }, [selected, qIndex]);
 
@@ -188,7 +183,7 @@ export default function QuizApp() {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => { videoRef.current?.play(); setIsCameraReady(true); };
       }
-    } catch { setCameraError("カメラがつかえません。スキップして すすもう！"); }
+    } catch { setCameraError("カメラがつかえないよ。スキップして すすもう！"); }
   }, []);
 
   const stopCamera = useCallback(() => {
@@ -217,16 +212,21 @@ export default function QuizApp() {
     setSelected(null); setUserPhoto(null); setUserName("");
     setChallengerNo(null); setTotalCount(null); setShowResult(false);
     setTimerActive(false); setTimeLeft(30);
-    setDoguMessage("いっしょに となみたびをしよう！");
+    setDoguMessage("いっしょに となみたびをしようね！");
+    sessionStorage.removeItem("cert_photo");
   };
 
-  // 証明書URL生成
+  // 証明書URL生成（写真はsessionStorageに保存してURLには含めない）
   const getCertUrl = () => {
+    if (userPhoto) {
+      sessionStorage.setItem("cert_photo", userPhoto);
+    } else {
+      sessionStorage.removeItem("cert_photo");
+    }
     const params = new URLSearchParams({
       name: userName || "なまえなし",
       score: String(score),
       no: challengerNo || "----",
-      photo: userPhoto || "",
     });
     return `/certificate?${params.toString()}`;
   };
@@ -251,7 +251,6 @@ export default function QuizApp() {
       `}</style>
 
       {phase !== "warp" && <Particles />}
-
       {phase === "warp" && <WarpEffect onDone={() => setPhase("register")} />}
 
       {/* タイトル画面 */}
@@ -268,7 +267,7 @@ export default function QuizApp() {
           </div>
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", marginBottom:24, maxWidth:300 }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              ねえ！わしは<br/>「ドーグちゃん」だよ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうね！
+              ねえ！わたしは<br/>「ドーグちゃん」だよ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうね！
             </p>
           </div>
           <button className="start-btn" onClick={() => setPhase("warp")} style={{
@@ -291,7 +290,7 @@ export default function QuizApp() {
           <Dogu mood="talk" size={100} />
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", margin:"12px 0 20px", maxWidth:300, textAlign:"center" }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              なまえを おしえてくれ！<br/>（なしでもいいよ！）
+              なまえを おしえてね！<br/>（なしでもいいよ！）
             </p>
           </div>
           <input
@@ -406,11 +405,9 @@ export default function QuizApp() {
       {phase === "result" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, textAlign:"center" }}>
           <Dogu mood={score===10?"excited":score>=7?"happy":score>=4?"idle":"wrong"} size={120} />
-
           {userPhoto && <img src={userPhoto} style={{ width:60, height:60, borderRadius:"50%", objectFit:"cover", border:"3px solid #FFD700", margin:"8px auto" }} alt="you" />}
           {userName && <p style={{ color:"#FFE8A0", fontSize:16, margin:"4px 0", fontFamily:"'Noto Serif JP',serif" }}>{userName}</p>}
           {challengerNo && <p style={{ color:"#C8A96E", fontSize:12, margin:"2px 0 12px" }}>ちゃれんじゃ No.{challengerNo} ・ これまで {totalCount?.toLocaleString()}にんが ちゃれんじ！</p>}
-
           <div style={{ background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.9))", border:"2px solid #FFD700", borderRadius:20, padding:"20px 32px", marginBottom:20, boxShadow:"0 0 30px rgba(255,215,0,0.3)" }}>
             <p style={{ color:"#C8A96E", fontSize:14, margin:"0 0 4px", fontFamily:"'Noto Sans JP',sans-serif" }}>せいかい すう</p>
             <p style={{ color:"#FFD700", fontSize:64, fontWeight:700, margin:0, fontFamily:"'Noto Serif JP',serif", textShadow:"0 0 20px #FFD700" }}>
@@ -418,7 +415,7 @@ export default function QuizApp() {
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Noto Serif JP',serif" }}>
               {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":
-               score>=7?"🎉 すごい！れきしはかせにちかい！":
+               score>=7?"🎉 すごい！れきしはかせにちかいよ！":
                score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
             </p>
           </div>
@@ -446,7 +443,6 @@ export default function QuizApp() {
               🏛 でんどうをみる
             </a>
           )}
-
           <button onClick={() => { reset(); setTimeout(() => setPhase("warp"),100); setTimeout(()=>setPhase("register"),2900); }} style={{ width:"100%", maxWidth:300, padding:"14px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10 }}>
             もう いちど ちゃれんじ！
           </button>
