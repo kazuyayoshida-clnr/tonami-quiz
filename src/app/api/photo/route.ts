@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
 
     // Redisに保存（30分 = 1800秒で自動削除）
-    await redis.set(`photo:${id}`, photo, { ex: 1800 });
+    await redis.set(`photo:${id}`, photo, { ex: 180 });
 
     return NextResponse.json({ id });
   } catch (e) {
