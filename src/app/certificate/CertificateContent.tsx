@@ -133,7 +133,7 @@ export default function CertificateContent() {
               <p style={{ margin:0, fontSize:10, color:"#8B5E3C", letterSpacing:"0.1em" }}>砺波市埋蔵文化財センター</p>
               <p style={{ margin:"2px 0 0", fontSize:14, fontWeight:700, color:"#3B1F0A", letterSpacing:"0.15em" }}>ドーグちゃん</p>
             </div>
-            <Dogu mood="happy" size={56} />
+            <Dogu mood="welcome" size={56} />
           </div>
         </div>
       </div>

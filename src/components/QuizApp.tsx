@@ -74,13 +74,14 @@ export default function QuizApp() {
   const [showResult, setShowResult] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState("");
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [timerActive, setTimerActive] = useState(false);
   const [photoId, setPhotoId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const hintTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (timerActive && timeLeft > 0) {
@@ -95,6 +96,7 @@ export default function QuizApp() {
     if (selected !== null) return;
     setSelected(-1);
     setTimerActive(false);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     setMood("wrong");
     setDoguMessage(`じかんぎれ！せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎがんばろうね！`);
     setTimeout(() => nextQuestion(false), 3000);
@@ -103,11 +105,16 @@ export default function QuizApp() {
   const startQuestion = useCallback((idx: number) => {
     setQIndex(idx);
     setSelected(null);
-    setTimeLeft(30);
+    setTimeLeft(60);
     setTimerActive(true);
-    setMood("talk");
-    setDoguMessage(questions[idx].hint + "…ヒントだよ！");
-    setTimeout(() => setMood("think"), 1500);
+    setMood("idle");
+    setDoguMessage("さあ、もんだいだよ！かんがえてみてね！");
+    // 10秒後にヒントを表示
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => {
+      setMood("think");
+      setDoguMessage(questions[idx].hint + "…ヒントだよ！");
+    }, 10000);
   }, []);
 
   const startQuiz = useCallback(() => {
@@ -143,6 +150,7 @@ export default function QuizApp() {
     if (selected !== null) return;
     setSelected(idx);
     setTimerActive(false);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     const q = questions[qIndex];
     const isCorrect = idx === q.answer;
     if (isCorrect) {
@@ -202,7 +210,7 @@ export default function QuizApp() {
     setPhase("title"); setMood("idle"); setScore(0); setQIndex(0);
     setSelected(null); setUserPhoto(null); setUserName("");
     setChallengerNo(null); setTotalCount(null); setShowResult(false);
-    setTimerActive(false); setTimeLeft(30); setPhotoId(null);
+    setTimerActive(false); setTimeLeft(60); setPhotoId(null);
     setDoguMessage("いっしょに となみたびをしようね！");
     sessionStorage.removeItem("cert_photo");
   };
@@ -250,7 +258,7 @@ export default function QuizApp() {
               ほほえみの土偶と<br/>ゆく<br/>となみれきし<br/>なぞとき
             </h1>
           </div>
-          <div style={{ margin:"16px 0" }}><Dogu mood="excited" size={130} /></div>
+          <div style={{ margin:"16px 0" }}><Dogu mood="welcome" size={130} /></div>
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", marginBottom:24, maxWidth:300 }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
               ねえ！わたしは<br/>「ドーグちゃん」だよ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうね！
@@ -266,7 +274,7 @@ export default function QuizApp() {
       {/* とうろく画面 */}
       {phase === "register" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
-          <Dogu mood="talk" size={100} />
+          <Dogu mood="idle" size={100} />
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", margin:"12px 0 20px", maxWidth:300, textAlign:"center" }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>なまえを おしえてね！<br/>（なしでもいいよ！）</p>
           </div>
@@ -281,7 +289,7 @@ export default function QuizApp() {
       {/* カメラ画面 */}
       {phase === "camera" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, gap:16 }}>
-          <Dogu mood="excited" size={80} />
+          <Dogu mood="idle" size={80} />
           <p style={{ color:"#FFE8A0", fontSize:15, fontFamily:"'Noto Serif JP',serif" }}>かおをまんなかに あわせてね📷</p>
           <div style={{ position:"relative", width:"100%", maxWidth:360, borderRadius:16, overflow:"hidden", background:"#2C1A0E", border:"2px solid #C8A96E", aspectRatio:"4/3" }}>
             <video ref={videoRef} autoPlay playsInline muted style={{ width:"100%", height:"100%", objectFit:"cover", transform:"scaleX(-1)", display:isCameraReady?"block":"none" }} />

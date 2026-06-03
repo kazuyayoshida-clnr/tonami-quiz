@@ -1,6 +1,6 @@
 "use client";
 
-type DoguMood = "idle" | "happy" | "think" | "correct" | "wrong" | "excited" | "talk";
+type DoguMood = "idle" | "happy" | "think" | "correct" | "wrong" | "excited" | "talk" | "welcome";
 
 interface Props {
   mood?: DoguMood;
@@ -10,9 +10,12 @@ interface Props {
 
 export default function Dogu({ mood = "idle", size = 120, animate = true }: Props) {
 
-  // moodに応じて画像を選択
   const getImage = () => {
     switch (mood) {
+      case "welcome":
+        return "/dogu-welcome.png";
+      case "idle":
+        return "/dogu-idle.png";
       case "correct":
       case "excited":
       case "happy":
@@ -22,16 +25,16 @@ export default function Dogu({ mood = "idle", size = 120, animate = true }: Prop
       case "think":
       case "talk":
         return "/dogu-hint.png";
-      case "idle":
       default:
         return "/dogu-quiz.png";
     }
   };
 
-  // moodに応じてアニメーションクラスを選択
   const getAnimClass = () => {
     if (!animate) return "";
     switch (mood) {
+      case "welcome":
+        return "dogu-bounce";
       case "correct":
       case "excited":
         return "dogu-jump";
@@ -41,6 +44,8 @@ export default function Dogu({ mood = "idle", size = 120, animate = true }: Prop
         return "dogu-bounce";
       case "think":
       case "talk":
+        return "dogu-sway";
+      case "idle":
         return "dogu-sway";
       default:
         return "dogu-float";
