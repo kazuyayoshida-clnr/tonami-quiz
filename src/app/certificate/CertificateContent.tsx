@@ -21,14 +21,12 @@ export default function CertificateContent() {
   }, []);
 
   useEffect(() => {
-    // 写真をAPIから取得（pidがある場合）
     if (photoId) {
       fetch(`/api/photo?id=${photoId}`)
         .then(r => r.json())
         .then(d => { if (d.photo) setPhoto(d.photo); })
         .catch(() => {});
     } else {
-      // sessionStorageからフォールバック（同一ブラウザの場合）
       const saved = sessionStorage.getItem("cert_photo");
       if (saved) setPhoto(saved);
     }
@@ -47,7 +45,6 @@ export default function CertificateContent() {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      padding: "24px 16px",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@400;500&display=swap');
@@ -56,112 +53,135 @@ export default function CertificateContent() {
         .cert-card{animation:fadeUp 0.6s ease, glow 3s ease-in-out infinite}
       `}</style>
 
-      <div className="cert-card" style={{
-        width: "100%", maxWidth: 420,
-        background: "linear-gradient(160deg, #FDF6E3, #F5EFE0, #EDE0C8)",
-        border: "3px solid #C8A96E", borderRadius: 20, padding: "28px 24px",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 0 60px rgba(200,169,110,0.1)",
-        position: "relative", overflow: "hidden",
+      {/* ===== 1ページ目：スクショ用（iPhone12最適化 390×844px） ===== */}
+      <div style={{
+        width: "100%",
+        maxWidth: 390,
+        minHeight: 844,
+        background: "#1A0E05",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+        boxSizing: "border-box",
       }}>
-        {/* 四隅の装飾 */}
-        <div style={{ position:"absolute", top:10, left:10, width:20, height:20, border:"2px solid #C8A96E", borderRight:"none", borderBottom:"none" }}/>
-        <div style={{ position:"absolute", top:10, right:10, width:20, height:20, border:"2px solid #C8A96E", borderLeft:"none", borderBottom:"none" }}/>
-        <div style={{ position:"absolute", bottom:10, left:10, width:20, height:20, border:"2px solid #C8A96E", borderRight:"none", borderTop:"none" }}/>
-        <div style={{ position:"absolute", bottom:10, right:10, width:20, height:20, border:"2px solid #C8A96E", borderLeft:"none", borderTop:"none" }}/>
-
-        {/* 殿堂入りバッジ */}
-        {isPerfect && (
-          <div style={{ background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", fontSize:13, fontWeight:700, padding:"4px 16px", borderRadius:20, textAlign:"center", marginBottom:12, letterSpacing:"0.15em" }}>
-            🏆 殿堂入り
-          </div>
-        )}
-
-        {/* タイトル */}
-        <p style={{ textAlign:"center", fontSize:11, letterSpacing:"0.4em", color:"#8B5E3C", margin:"0 0 4px" }}>砺波市埋蔵文化財センター</p>
-        <h1 style={{ textAlign:"center", fontSize:26, fontWeight:700, color:"#3B1F0A", margin:"0 0 16px", letterSpacing:"0.2em", borderBottom:"1.5px solid #C8A96E", paddingBottom:12 }}>
-          受講証明書
-        </h1>
-
-        {/* 顔写真 */}
-        {photo && (
-          <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
-            <img src={photo} style={{ width:72, height:72, borderRadius:"50%", objectFit:"cover", border:"3px solid #C8A96E" }} alt={name} />
-          </div>
-        )}
-
-        {/* 名前 */}
-        <p style={{ textAlign:"center", fontSize:22, fontWeight:700, color:"#3B1F0A", margin:"0 0 4px", letterSpacing:"0.1em" }}>
-          {name}　殿
-        </p>
-        <p style={{ textAlign:"center", fontSize:11, color:"#8B5E3C", margin:"0 0 16px", fontFamily:"'Noto Sans JP', sans-serif" }}>
-          挑戦者 No.{no}
-        </p>
-
-        {/* 本文 */}
-        <div style={{ background:"rgba(200,169,110,0.1)", border:"1px solid #C8A96E", borderRadius:10, padding:"14px 16px", marginBottom:16 }}>
-          <p style={{ fontSize:13, color:"#4A2E10", lineHeight:2, margin:0, textAlign:"justify" }}>
-            あなたは「となみの れきし なぞとき クイズ」において、
-            砺波の歴史と文化について熱心に学ばれ、
-            見事 <strong>{score}問</strong> を正解されました。
-            {isPerfect
-              ? "全問正解という快挙を称え、ここに殿堂入りとして表彰いたします。"
-              : "その探求心と学びの姿勢を讃え、ここに受講を証明いたします。"
-            }
-          </p>
-        </div>
-
-        {/* 日付 */}
-        <p style={{ textAlign:"right", fontSize:13, color:"#6B4226", margin:"0 0 16px" }}>{today}</p>
-
-        {/* 授与者 */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"flex-end", gap:12, borderTop:"1px solid #C8A96E", paddingTop:14, marginBottom:20 }}>
-          <div style={{ textAlign:"right" }}>
-            <p style={{ margin:0, fontSize:11, color:"#8B5E3C", letterSpacing:"0.1em" }}>砺波市埋蔵文化財センター</p>
-            <p style={{ margin:"2px 0 0", fontSize:15, fontWeight:700, color:"#3B1F0A", letterSpacing:"0.15em" }}>ドーグちゃん</p>
-          </div>
-          <Dogu mood="happy" size={60} />
-        </div>
-
-        {/* QRコード */}
-        <div style={{ borderTop:"1px dashed #C8A96E", paddingTop:16, textAlign:"center" }}>
-          <p style={{ fontSize:11, color:"#8B5E3C", margin:"0 0 8px", letterSpacing:"0.05em" }}>
-            📱 このQRコードでスマホにも表示できます
-          </p>
-          {qrUrl && (
-            <img src={qrUrl} alt="QRコード" style={{ width:120, height:120, borderRadius:8, border:"1px solid #C8A96E" }} />
-          )}
-          <p style={{ fontSize:10, color:"#A08060", margin:"8px 0 0" }}>スクリーンショットで保存できます</p>
-        </div>
-
-        {/* プライバシー注意書き */}
-        <div style={{
-          marginTop: 16,
-          padding: "10px 12px",
-          background: "rgba(139,94,60,0.08)",
-          border: "1px solid #C8A96E",
-          borderRadius: 8,
+        <div className="cert-card" style={{
+          width: "100%",
+          background: "linear-gradient(160deg, #FDF6E3, #F5EFE0, #EDE0C8)",
+          border: "3px solid #C8A96E",
+          borderRadius: 20,
+          padding: "20px 20px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 0 60px rgba(200,169,110,0.1)",
+          position: "relative",
+          boxSizing: "border-box",
         }}>
-          <p style={{
-            fontSize: 10,
-            color: "#6B4226",
-            lineHeight: 1.8,
-            margin: 0,
-            fontFamily: "'Noto Sans JP', sans-serif",
-            textAlign: "justify",
-          }}>
-            【個人情報の取り扱いについて】<br/>
-            本証明書に使用された顔写真データは、セキュリティ保護の観点より、
-            発行から<strong>3分後に自動的に削除</strong>されます。
-            当該データは本証明書の表示目的のみに使用され、
-            第三者への提供および他の目的への利用は一切行いません。
+          {/* 四隅の装飾 */}
+          <div style={{ position:"absolute", top:10, left:10, width:18, height:18, border:"2px solid #C8A96E", borderRight:"none", borderBottom:"none" }}/>
+          <div style={{ position:"absolute", top:10, right:10, width:18, height:18, border:"2px solid #C8A96E", borderLeft:"none", borderBottom:"none" }}/>
+          <div style={{ position:"absolute", bottom:10, left:10, width:18, height:18, border:"2px solid #C8A96E", borderRight:"none", borderTop:"none" }}/>
+          <div style={{ position:"absolute", bottom:10, right:10, width:18, height:18, border:"2px solid #C8A96E", borderLeft:"none", borderTop:"none" }}/>
+
+          {/* 殿堂入りバッジ */}
+          {isPerfect && (
+            <div style={{ background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", fontSize:12, fontWeight:700, padding:"3px 14px", borderRadius:20, textAlign:"center", marginBottom:10, letterSpacing:"0.15em" }}>
+              🏆 殿堂入り
+            </div>
+          )}
+
+          {/* タイトル */}
+          <p style={{ textAlign:"center", fontSize:10, letterSpacing:"0.35em", color:"#8B5E3C", margin:"0 0 3px" }}>
             砺波市埋蔵文化財センター
           </p>
+          <h1 style={{ textAlign:"center", fontSize:24, fontWeight:700, color:"#3B1F0A", margin:"0 0 14px", letterSpacing:"0.2em", borderBottom:"1.5px solid #C8A96E", paddingBottom:10 }}>
+            受講証明書
+          </h1>
+
+          {/* 顔写真 */}
+          {photo && (
+            <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
+              <img src={photo} style={{ width:68, height:68, borderRadius:"50%", objectFit:"cover", border:"3px solid #C8A96E" }} alt={name} />
+            </div>
+          )}
+
+          {/* 名前 */}
+          <p style={{ textAlign:"center", fontSize:20, fontWeight:700, color:"#3B1F0A", margin:"0 0 3px", letterSpacing:"0.1em" }}>
+            {name}　殿
+          </p>
+          <p style={{ textAlign:"center", fontSize:10, color:"#8B5E3C", margin:"0 0 14px", fontFamily:"'Noto Sans JP', sans-serif" }}>
+            挑戦者 No.{no}
+          </p>
+
+          {/* 本文 */}
+          <div style={{ background:"rgba(200,169,110,0.1)", border:"1px solid #C8A96E", borderRadius:10, padding:"12px 14px", marginBottom:14 }}>
+            <p style={{ fontSize:12, color:"#4A2E10", lineHeight:1.9, margin:0, textAlign:"justify" }}>
+              あなたは「となみの れきし なぞとき クイズ」において、
+              砺波の歴史と文化について熱心に学ばれ、
+              見事 <strong>{score}問</strong> を正解されました。
+              {isPerfect
+                ? "全問正解という快挙を称え、ここに殿堂入りとして表彰いたします。"
+                : "その探求心と学びの姿勢を讃え、ここに受講を証明いたします。"
+              }
+            </p>
+          </div>
+
+          {/* 日付 */}
+          <p style={{ textAlign:"right", fontSize:12, color:"#6B4226", margin:"0 0 14px" }}>{today}</p>
+
+          {/* 授与者 */}
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"flex-end", gap:10, borderTop:"1px solid #C8A96E", paddingTop:12 }}>
+            <div style={{ textAlign:"right" }}>
+              <p style={{ margin:0, fontSize:10, color:"#8B5E3C", letterSpacing:"0.1em" }}>砺波市埋蔵文化財センター</p>
+              <p style={{ margin:"2px 0 0", fontSize:14, fontWeight:700, color:"#3B1F0A", letterSpacing:"0.15em" }}>ドーグちゃん</p>
+            </div>
+            <Dogu mood="happy" size={56} />
+          </div>
         </div>
       </div>
 
-      <a href="/" style={{ marginTop:24, padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, textDecoration:"none", fontFamily:"'Noto Sans JP', sans-serif" }}>
-        ← クイズにもどる
-      </a>
+      {/* スクロール促進の矢印 */}
+      <div style={{ textAlign:"center", padding:"8px 0", color:"#C8A96E", fontSize:12, fontFamily:"'Noto Sans JP', sans-serif" }}>
+        ▼ スクロールしてQRコードを見る
+      </div>
+
+      {/* ===== 2ページ目：QRコード＋個人情報 ===== */}
+      <div style={{
+        width: "100%",
+        maxWidth: 390,
+        padding: "24px 16px 40px",
+        boxSizing: "border-box",
+      }}>
+        {/* QRコード */}
+        <div style={{ background:"linear-gradient(160deg,#FDF6E3,#F5EFE0)", border:"2px solid #C8A96E", borderRadius:16, padding:"24px 16px", textAlign:"center", marginBottom:16 }}>
+          <p style={{ fontSize:13, color:"#8B5E3C", margin:"0 0 12px", letterSpacing:"0.05em", fontFamily:"'Noto Sans JP', sans-serif" }}>
+            📱 このQRコードでスマホにも表示できます
+          </p>
+          {qrUrl && (
+            <img src={qrUrl} alt="QRコード" style={{ width:140, height:140, borderRadius:8, border:"1px solid #C8A96E" }} />
+          )}
+          <p style={{ fontSize:11, color:"#A08060", margin:"10px 0 0", fontFamily:"'Noto Sans JP', sans-serif" }}>
+            1ページ目をスクリーンショットで保存できます
+          </p>
+        </div>
+
+        {/* 個人情報の取り扱い */}
+        <div style={{ background:"rgba(253,246,227,0.05)", border:"1px solid #5C3D1E", borderRadius:12, padding:"16px" }}>
+          <p style={{ fontSize:11, color:"#C8A96E", fontWeight:700, margin:"0 0 8px", letterSpacing:"0.1em", fontFamily:"'Noto Sans JP', sans-serif" }}>
+            【個人情報の取り扱いについて】
+          </p>
+          <p style={{ fontSize:11, color:"#9A7A5A", lineHeight:1.9, margin:0, fontFamily:"'Noto Sans JP', sans-serif", textAlign:"justify" }}>
+            本証明書に使用された顔写真データは、セキュリティ保護の観点より、
+            発行から<strong style={{ color:"#C8A96E" }}>3分後に自動的に削除</strong>されます。
+            当該データは本証明書の表示目的のみに使用され、
+            第三者への提供および他の目的への利用は一切行いません。<br/><br/>
+            砺波市埋蔵文化財センター
+          </p>
+        </div>
+
+        {/* 戻るボタン */}
+        <a href="/" style={{ display:"block", marginTop:24, padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, textDecoration:"none", fontFamily:"'Noto Sans JP', sans-serif", textAlign:"center" }}>
+          ← クイズにもどる
+        </a>
+      </div>
     </div>
   );
 }
