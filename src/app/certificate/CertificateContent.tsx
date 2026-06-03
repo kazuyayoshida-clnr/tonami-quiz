@@ -8,6 +8,7 @@ export default function CertificateContent() {
   const name = searchParams.get("name") || "なまえなし";
   const score = parseInt(searchParams.get("score") || "0");
   const no = searchParams.get("no") || "----";
+  const photoId = searchParams.get("pid") || null;
   const isPerfect = score === 10;
 
   const [today, setToday] = useState("");
@@ -17,14 +18,24 @@ export default function CertificateContent() {
   useEffect(() => {
     const d = new Date();
     setToday(`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`);
-    // sessionStorageから写真を取得
-    const saved = sessionStorage.getItem("cert_photo");
-    if (saved) setPhoto(saved);
   }, []);
 
   useEffect(() => {
-    // QRコードはURLのみ（写真なし）で生成
-    const baseUrl = window.location.origin + window.location.pathname + window.location.search;
+    // 写真をAPIから取得（pidがある場合）
+    if (photoId) {
+      fetch(`/api/photo?id=${photoId}`)
+        .then(r => r.json())
+        .then(d => { if (d.photo) setPhoto(d.photo); })
+        .catch(() => {});
+    } else {
+      // sessionStorageからフォールバック（同一ブラウザの場合）
+      const saved = sessionStorage.getItem("cert_photo");
+      if (saved) setPhoto(saved);
+    }
+  }, [photoId]);
+
+  useEffect(() => {
+    const baseUrl = window.location.href;
     setQrUrl(`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(baseUrl)}&color=3B1F0A&bgcolor=F5EFE0`);
   }, []);
 
@@ -113,13 +124,38 @@ export default function CertificateContent() {
 
         {/* QRコード */}
         <div style={{ borderTop:"1px dashed #C8A96E", paddingTop:16, textAlign:"center" }}>
-          <p style={{ fontSize:11, color:"#8B5E3C", margin:"0 0 8px", letterSpacing:"0.1em" }}>
+          <p style={{ fontSize:11, color:"#8B5E3C", margin:"0 0 8px", letterSpacing:"0.05em" }}>
             📱 このQRコードでスマホにも表示できます
           </p>
           {qrUrl && (
             <img src={qrUrl} alt="QRコード" style={{ width:120, height:120, borderRadius:8, border:"1px solid #C8A96E" }} />
           )}
           <p style={{ fontSize:10, color:"#A08060", margin:"8px 0 0" }}>スクリーンショットで保存できます</p>
+        </div>
+
+        {/* プライバシー注意書き */}
+        <div style={{
+          marginTop: 16,
+          padding: "10px 12px",
+          background: "rgba(139,94,60,0.08)",
+          border: "1px solid #C8A96E",
+          borderRadius: 8,
+        }}>
+          <p style={{
+            fontSize: 10,
+            color: "#6B4226",
+            lineHeight: 1.8,
+            margin: 0,
+            fontFamily: "'Noto Sans JP', sans-serif",
+            textAlign: "justify",
+          }}>
+            【個人情報の取り扱いについて】<br/>
+            本証明書に使用された顔写真データは、セキュリティ保護の観点より、
+            発行から<strong>30分後に自動的に削除</strong>されます。
+            当該データは本証明書の表示目的のみに使用され、
+            第三者への提供および他の目的への利用は一切行いません。
+            砺波市埋蔵文化財センター
+          </p>
         </div>
       </div>
 

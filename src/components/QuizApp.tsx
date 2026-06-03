@@ -39,11 +39,7 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
   const years = ["2024","1868","1603","1333","794","710","弥生","縄文","旧石器"];
 
   return (
-    <div style={{
-      position:"fixed", inset:0, background:"#000", zIndex:100,
-      display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-      overflow:"hidden"
-    }}>
+    <div style={{ position:"fixed", inset:0, background:"#000", zIndex:100, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
       <style>{`
         @keyframes warp-in{0%{opacity:0;transform:scale(3)}100%{opacity:1;transform:scale(1)}}
         @keyframes year-fly{0%{transform:translateY(100px) scale(0.5);opacity:0}30%{opacity:1}70%{opacity:1}100%{transform:translateY(-200px) scale(2);opacity:0}}
@@ -52,29 +48,14 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
         .year-item{animation:year-fly 0.4s ease-out forwards}
       `}</style>
       {[1,2,3,4,5].map(i=>(
-        <div key={i} className="warp-circle" style={{
-          position:"absolute", width:`${i*60}px`, height:`${i*60}px`,
-          border:`${4-i*0.5}px solid`,
-          borderColor:['#FFD700','#C8A96E','#FFF','#D4A853','#8B5E3C'][i-1],
-          borderRadius:"50%",
-          animationDelay:`${i*0.1}s`,
-        }}/>
+        <div key={i} className="warp-circle" style={{ position:"absolute", width:`${i*60}px`, height:`${i*60}px`, border:`${4-i*0.5}px solid`, borderColor:['#FFD700','#C8A96E','#FFF','#D4A853','#8B5E3C'][i-1], borderRadius:"50%", animationDelay:`${i*0.1}s` }}/>
       ))}
       <div style={{ position:"absolute", inset:0, display:"flex", flexWrap:"wrap", alignItems:"center", justifyContent:"center", gap:16 }}>
         {years.map((y,i)=>(
-          <div key={y} className="year-item" style={{
-            color:["#FFD700","#FFF","#C8A96E","#E8C99A"][i%4],
-            fontSize:`${20+Math.random()*24}px`,
-            fontWeight:700,
-            fontFamily:"'Noto Serif JP', serif",
-            animationDelay:`${i*0.25}s`,
-            textShadow:"0 0 20px currentColor",
-          }}>{y}</div>
+          <div key={y} className="year-item" style={{ color:["#FFD700","#FFF","#C8A96E","#E8C99A"][i%4], fontSize:`${20+Math.random()*24}px`, fontWeight:700, fontFamily:"'Noto Serif JP', serif", animationDelay:`${i*0.25}s`, textShadow:"0 0 20px currentColor" }}>{y}</div>
         ))}
       </div>
-      <p style={{ color:"#FFD700", fontSize:18, fontFamily:"'Noto Serif JP', serif", zIndex:10, textShadow:"0 0 20px #FFD700", animation:"warp-in 0.5s ease-out" }}>
-        ときをこえて…
-      </p>
+      <p style={{ color:"#FFD700", fontSize:18, fontFamily:"'Noto Serif JP', serif", zIndex:10, textShadow:"0 0 20px #FFD700", animation:"warp-in 0.5s ease-out" }}>ときをこえて…</p>
     </div>
   );
 }
@@ -95,6 +76,7 @@ export default function QuizApp() {
   const [cameraError, setCameraError] = useState("");
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
+  const [photoId, setPhotoId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -203,7 +185,16 @@ export default function QuizApp() {
     const ctx = c.getContext("2d");
     if (!ctx) return;
     ctx.save(); ctx.scale(-1,1); ctx.drawImage(v,-c.width,0,c.width,c.height); ctx.restore();
-    setUserPhoto(c.toDataURL("image/jpeg", 0.8));
+    const photoData = c.toDataURL("image/jpeg", 0.8);
+    setUserPhoto(photoData);
+    // Redisに写真を保存してIDを取得
+    fetch("/api/photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo: photoData }),
+    }).then(r => r.json()).then(d => {
+      if (d.id) setPhotoId(d.id);
+    }).catch(() => {});
     stopCamera(); startQuiz();
   }, [stopCamera, startQuiz]);
 
@@ -211,23 +202,20 @@ export default function QuizApp() {
     setPhase("title"); setMood("idle"); setScore(0); setQIndex(0);
     setSelected(null); setUserPhoto(null); setUserName("");
     setChallengerNo(null); setTotalCount(null); setShowResult(false);
-    setTimerActive(false); setTimeLeft(30);
+    setTimerActive(false); setTimeLeft(30); setPhotoId(null);
     setDoguMessage("いっしょに となみたびをしようね！");
     sessionStorage.removeItem("cert_photo");
   };
 
-  // 証明書URL生成（写真はsessionStorageに保存してURLには含めない）
+  // 証明書URL生成
   const getCertUrl = () => {
-    if (userPhoto) {
-      sessionStorage.setItem("cert_photo", userPhoto);
-    } else {
-      sessionStorage.removeItem("cert_photo");
-    }
+    if (userPhoto) sessionStorage.setItem("cert_photo", userPhoto);
     const params = new URLSearchParams({
       name: userName || "なまえなし",
       score: String(score),
       no: challengerNo || "----",
     });
+    if (photoId) params.set("pid", photoId);
     return `/certificate?${params.toString()}`;
   };
 
@@ -262,25 +250,16 @@ export default function QuizApp() {
               ほほえみの土偶と<br/>ゆく<br/>となみれきし<br/>なぞとき
             </h1>
           </div>
-          <div style={{ margin:"16px 0" }}>
-            <Dogu mood="excited" size={130} />
-          </div>
+          <div style={{ margin:"16px 0" }}><Dogu mood="excited" size={130} /></div>
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", marginBottom:24, maxWidth:300 }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
               ねえ！わたしは<br/>「ドーグちゃん」だよ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうね！
             </p>
           </div>
-          <button className="start-btn" onClick={() => setPhase("warp")} style={{
-            padding:"16px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)",
-            color:"#3B1F0A", border:"none", borderRadius:50, fontSize:18,
-            fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif",
-            boxShadow:"0 4px 20px rgba(255,215,0,0.5)", letterSpacing:"0.1em", marginBottom:16
-          }}>
+          <button className="start-btn" onClick={() => setPhase("warp")} style={{ padding:"16px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:18, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif", boxShadow:"0 4px 20px rgba(255,215,0,0.5)", letterSpacing:"0.1em", marginBottom:16 }}>
             🌟 たびに でかける！
           </button>
-          <a href="/hall-of-fame" style={{ color:"#C8A96E", fontSize:13, textDecoration:"none", fontFamily:"'Noto Sans JP',sans-serif" }}>
-            🏛 まんてんでんどうをみる
-          </a>
+          <a href="/hall-of-fame" style={{ color:"#C8A96E", fontSize:13, textDecoration:"none", fontFamily:"'Noto Sans JP',sans-serif" }}>🏛 まんてんでんどうをみる</a>
         </div>
       )}
 
@@ -289,33 +268,13 @@ export default function QuizApp() {
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
           <Dogu mood="talk" size={100} />
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", margin:"12px 0 20px", maxWidth:300, textAlign:"center" }}>
-            <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              なまえを おしえてね！<br/>（なしでもいいよ！）
-            </p>
+            <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>なまえを おしえてね！<br/>（なしでもいいよ！）</p>
           </div>
-          <input
-            type="text" value={userName} onChange={e => setUserName(e.target.value)}
-            onKeyDown={e => e.key==="Enter" && setPhase("camera")}
-            placeholder="なまえを にゅうりょく" maxLength={12}
-            style={{
-              width:"100%", maxWidth:320, padding:"14px 16px",
-              background:"rgba(255,255,255,0.1)", border:"2px solid #C8A96E",
-              borderRadius:12, color:"#FFE8A0", fontSize:18, textAlign:"center",
-              fontFamily:"'Noto Sans JP',sans-serif", marginBottom:16, boxSizing:"border-box"
-            }}
+          <input type="text" value={userName} onChange={e => setUserName(e.target.value)} onKeyDown={e => e.key==="Enter" && setPhase("camera")} placeholder="なまえを にゅうりょく" maxLength={12}
+            style={{ width:"100%", maxWidth:320, padding:"14px 16px", background:"rgba(255,255,255,0.1)", border:"2px solid #C8A96E", borderRadius:12, color:"#FFE8A0", fontSize:18, textAlign:"center", fontFamily:"'Noto Sans JP',sans-serif", marginBottom:16, boxSizing:"border-box" }}
           />
-          <button onClick={() => setPhase("camera")} style={{
-            width:"100%", maxWidth:320, padding:"14px",
-            background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A",
-            border:"none", borderRadius:50, fontSize:16, fontWeight:700,
-            cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10
-          }}>📷 しゃしんをとる →</button>
-          <button onClick={() => startQuiz()} style={{
-            width:"100%", maxWidth:320, padding:"12px",
-            background:"transparent", color:"#C8A96E",
-            border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14,
-            cursor:"pointer", fontFamily:"'Noto Sans JP',sans-serif"
-          }}>しゃしんなしで はじめる</button>
+          <button onClick={() => setPhase("camera")} style={{ width:"100%", maxWidth:320, padding:"14px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10 }}>📷 しゃしんをとる →</button>
+          <button onClick={() => startQuiz()} style={{ width:"100%", maxWidth:320, padding:"12px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, cursor:"pointer", fontFamily:"'Noto Sans JP',sans-serif" }}>しゃしんなしで はじめる</button>
         </div>
       )}
 
@@ -331,13 +290,9 @@ export default function QuizApp() {
           </div>
           <canvas ref={canvasRef} style={{ display:"none" }} />
           {isCameraReady && (
-            <button onClick={takePhoto} style={{ padding:"14px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif" }}>
-              📸 とる！
-            </button>
+            <button onClick={takePhoto} style={{ padding:"14px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif" }}>📸 とる！</button>
           )}
-          <button onClick={() => startQuiz()} style={{ padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, cursor:"pointer" }}>
-            スキップして はじめる
-          </button>
+          <button onClick={() => startQuiz()} style={{ padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, cursor:"pointer" }}>スキップして はじめる</button>
         </div>
       )}
 
@@ -385,13 +340,7 @@ export default function QuizApp() {
               }
               return (
                 <button key={i} onClick={() => selected===null && handleAnswer(i)}
-                  style={{
-                    padding:"14px 10px", background:bg, border, borderRadius:12,
-                    color:"#FFF", fontSize:14, fontWeight:700, cursor:selected===null?"pointer":"default",
-                    fontFamily:"'Noto Sans JP',sans-serif", textAlign:"left", lineHeight:1.5,
-                    boxShadow:"0 3px 10px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s",
-                    display:"flex", alignItems:"center", gap:8,
-                  }}>
+                  style={{ padding:"14px 10px", background:bg, border, borderRadius:12, color:"#FFF", fontSize:14, fontWeight:700, cursor:selected===null?"pointer":"default", fontFamily:"'Noto Sans JP',sans-serif", textAlign:"left", lineHeight:1.5, boxShadow:"0 3px 10px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s", display:"flex", alignItems:"center", gap:8 }}>
                   <span style={{ fontSize:18, fontWeight:700, opacity:0.9 }}>{btnLabels[i]}</span>
                   <span style={{ fontSize:13 }}>{c}</span>
                 </button>
@@ -414,30 +363,12 @@ export default function QuizApp() {
               {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{questions.length}</span>
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Noto Serif JP',serif" }}>
-              {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":
-               score>=7?"🎉 すごい！れきしはかせにちかいよ！":
-               score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
+              {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":score>=7?"🎉 すごい！れきしはかせにちかいよ！":score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
             </p>
           </div>
-
-          {/* 受講証明書ボタン（全員表示） */}
-          <a
-            href={getCertUrl()}
-            style={{
-              display:"block", width:"100%", maxWidth:300,
-              marginBottom:12, padding:"14px 24px",
-              background:"linear-gradient(135deg,#3B1F0A,#5C3317)",
-              color:"#FFD700", border:"2px solid #FFD700",
-              borderRadius:50, fontSize:15, fontWeight:700,
-              textDecoration:"none", fontFamily:"'Noto Serif JP',serif",
-              letterSpacing:"0.05em", textAlign:"center",
-              boxShadow:"0 0 20px rgba(255,215,0,0.3)",
-              boxSizing:"border-box",
-            }}
-          >
+          <a href={getCertUrl()} style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"14px 24px", background:"linear-gradient(135deg,#3B1F0A,#5C3317)", color:"#FFD700", border:"2px solid #FFD700", borderRadius:50, fontSize:15, fontWeight:700, textDecoration:"none", fontFamily:"'Noto Serif JP',serif", letterSpacing:"0.05em", textAlign:"center", boxShadow:"0 0 20px rgba(255,215,0,0.3)", boxSizing:"border-box" }}>
             📜 受講証明書を見る
           </a>
-
           {score===10 && (
             <a href="/hall-of-fame" style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"10px 24px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", borderRadius:50, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"'Noto Serif JP',serif", textAlign:"center", boxSizing:"border-box" }}>
               🏛 でんどうをみる
