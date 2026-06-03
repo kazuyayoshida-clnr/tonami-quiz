@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import DoguFace from "@/components/DoguFace";
+import Dogu from "@/components/Dogu";
 
 interface Entry {
   no: string;
@@ -28,12 +28,12 @@ export default function HallOfFame() {
 
       {/* ヘッダー */}
       <div style={{ background:"#2C1A0E", borderBottom:"0.5px solid #5C3D1E", padding:"16px 24px", display:"flex", alignItems:"center", gap:12 }}>
-        <DoguFace mood="happy" size={48} />
+        <Dogu mood="happy" size={48} />
         <div>
           <p style={{ margin:0, fontSize:18, fontWeight:600, color:"#F5EFE0", fontFamily:"'Noto Serif JP', serif", letterSpacing:"0.1em" }}>
-            満点殿堂 🏆
+            満点殿堂
           </p>
-          <p style={{ margin:0, fontSize:12, color:"#9A7A5A" }}>砺波の歴史を完全制覇した者たち</p>
+          <p style={{ margin:0, fontSize:12, color:"#9A7A5A" }}>歴史の旅を完全制覇した者たち</p>
         </div>
         <a href="/" style={{ marginLeft:"auto", padding:"8px 16px", background:"transparent", border:"0.5px solid #5C3D1E", borderRadius:6, color:"#9A7A5A", fontSize:12, textDecoration:"none" }}>
           ← クイズへ
@@ -46,7 +46,7 @@ export default function HallOfFame() {
         <div style={{ display:"flex", gap:12, marginBottom:24 }}>
           <div style={{ flex:1, background:"#2C1A0E", border:"0.5px solid #5C3D1E", borderRadius:12, padding:"16px", textAlign:"center" }}>
             <p style={{ margin:0, fontSize:32, fontWeight:700, color:"#C8B89A", fontFamily:"'Noto Serif JP', serif" }}>{count.toLocaleString()}</p>
-            <p style={{ margin:"4px 0 0", fontSize:12, color:"#7A5A3A" }}>総挑戦者数</p>
+            <p style={{ margin:"4px 0 0", fontSize:12, color:"#7A5A3A" }}>累計挑戦者数</p>
           </div>
           <div style={{ flex:1, background:"#2C1A0E", border:"0.5px solid #5C3D1E", borderRadius:12, padding:"16px", textAlign:"center" }}>
             <p style={{ margin:0, fontSize:32, fontWeight:700, color:"#C8B89A", fontFamily:"'Noto Serif JP', serif" }}>{hall.length}</p>
@@ -59,8 +59,8 @@ export default function HallOfFame() {
           <p style={{ color:"#7A5A3A", textAlign:"center", fontSize:13 }}>読み込み中…</p>
         ) : hall.length === 0 ? (
           <div style={{ background:"#2C1A0E", border:"0.5px solid #5C3D1E", borderRadius:12, padding:"32px", textAlign:"center" }}>
-            <DoguFace mood="think" size={64} />
-            <p style={{ color:"#7A5A3A", fontSize:14, margin:"16px 0 0" }}>まだ満点達成者はおらぬ…<br/>お主が最初になるのじゃ！</p>
+            <Dogu mood="think" size={64} />
+            <p style={{ color:"#7A5A3A", fontSize:14, margin:"16px 0 0" }}>まだ満点達成者はおらぬ…<br/>そなたが最初になるのじゃ！</p>
           </div>
         ) : (
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
@@ -82,7 +82,7 @@ export default function HallOfFame() {
                 {entry.photo ? (
                   <img src={entry.photo} style={{ width:44, height:44, borderRadius:"50%", objectFit:"cover", border:"1.5px solid #7B6A4E", flexShrink:0 }} alt={entry.name} />
                 ) : (
-                  <div style={{ width:44, height:44, borderRadius:"50%", background:"#3D2B1A", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>👤</div>
+                  <div style={{ width:44, height:44, borderRadius:"50%", background:"#3D2B1A", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>🏺</div>
                 )}
                 {/* 名前・番号 */}
                 <div style={{ flex:1, minWidth:0 }}>
@@ -90,7 +90,7 @@ export default function HallOfFame() {
                     {entry.name}
                   </p>
                   <p style={{ margin:"2px 0 0", fontSize:11, color:"#7A5A3A" }}>
-                    挑戦者 No.{entry.no} ・ {entry.date}
+                    挑戦者 No.{entry.no} · {entry.date}
                   </p>
                 </div>
                 {/* スコア */}
