@@ -6,12 +6,10 @@ import { questions } from "@/lib/questions";
 type Phase = "title" | "warp" | "register" | "camera" | "quiz" | "result";
 type Mood = "idle" | "happy" | "think" | "correct" | "wrong" | "excited" | "talk";
 
-// ふりがなを振るユーティリティ（簡易版）
 function Ruby({ text, ruby }: { text: string; ruby: string }) {
   return <ruby>{text}<rt style={{ fontSize: "0.6em", color: "#8B5E3C" }}>{ruby}</rt></ruby>;
 }
 
-// パーティクル背景
 function Particles() {
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
@@ -36,14 +34,13 @@ function Particles() {
   );
 }
 
-// タイムワープエフェクト
 function WarpEffect({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2800);
     return () => clearTimeout(t);
   }, [onDone]);
 
-  const years = ["2024","1868","1603","1333","794","710","縄文","弥生","古墳"];
+  const years = ["2024","1868","1603","1333","794","710","弥生","縄文","旧石器"];
 
   return (
     <div style={{
@@ -59,8 +56,6 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
         .warp-circle{animation:tunnel 2.8s ease-in forwards}
         .year-item{animation:year-fly 0.4s ease-out forwards}
       `}</style>
-
-      {/* トンネルエフェクト */}
       {[1,2,3,4,5].map(i=>(
         <div key={i} className="warp-circle" style={{
           position:"absolute", width:`${i*60}px`, height:`${i*60}px`,
@@ -70,8 +65,6 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
           animationDelay:`${i*0.1}s`,
         }}/>
       ))}
-
-      {/* 流れる年号 */}
       <div style={{ position:"absolute", inset:0, display:"flex", flexWrap:"wrap", alignItems:"center", justifyContent:"center", gap:16 }}>
         {years.map((y,i)=>(
           <div key={y} className="year-item" style={{
@@ -84,9 +77,8 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
           }}>{y}</div>
         ))}
       </div>
-
       <p style={{ color:"#FFD700", fontSize:18, fontFamily:"'Noto Serif JP', serif", zIndex:10, textShadow:"0 0 20px #FFD700", animation:"warp-in 0.5s ease-out" }}>
-        とき を こえて…
+        ときをこえて…
       </p>
     </div>
   );
@@ -102,7 +94,7 @@ export default function QuizApp() {
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [challengerNo, setChallengerNo] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [doguMessage, setDoguMessage] = useState("いっしょに とき を たびしよう！");
+  const [doguMessage, setDoguMessage] = useState("いっしょに となみたびをしよう！");
   const [showResult, setShowResult] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState("");
@@ -113,7 +105,6 @@ export default function QuizApp() {
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // タイマー
   useEffect(() => {
     if (timerActive && timeLeft > 0) {
       timerRef.current = setTimeout(() => setTimeLeft(t => t - 1), 1000);
@@ -128,7 +119,7 @@ export default function QuizApp() {
     setSelected(-1);
     setTimerActive(false);
     setMood("wrong");
-    setDoguMessage(`じかん きれ！ せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎ いこう！`);
+    setDoguMessage(`じかんぎれ！せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎがんばろ～`);
     setTimeout(() => nextQuestion(false), 3000);
   }, [selected, qIndex]);
 
@@ -159,7 +150,6 @@ export default function QuizApp() {
       if (fs === 10) setMood("excited");
       else if (fs >= 7) setMood("happy");
       else setMood("idle");
-      // 挑戦者登録
       fetch("/api/challenger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -181,15 +171,14 @@ export default function QuizApp() {
     if (isCorrect) {
       setScore(s => s + 1);
       setMood("correct");
-      setDoguMessage("やったー！ ⭐ せいかい！ " + q.explanation);
+      setDoguMessage("やったー！🎉 せいかい！" + q.explanation);
     } else {
       setMood("wrong");
-      setDoguMessage("ざんねん…💦 せいかいは「" + q.choices[q.answer] + "」だよ。" + q.explanation);
+      setDoguMessage("ざんねん💦 せいかいは「" + q.choices[q.answer] + "」だよ。" + q.explanation);
     }
     setTimeout(() => nextQuestion(isCorrect), 3500);
   }, [selected, qIndex, nextQuestion]);
 
-  // カメラ
   const startCamera = useCallback(async () => {
     setCameraError(""); setIsCameraReady(false);
     try {
@@ -199,7 +188,7 @@ export default function QuizApp() {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => { videoRef.current?.play(); setIsCameraReady(true); };
       }
-    } catch { setCameraError("カメラが つかえません。スキップして すすもう！"); }
+    } catch { setCameraError("カメラがつかえません。スキップして すすもう！"); }
   }, []);
 
   const stopCamera = useCallback(() => {
@@ -228,7 +217,18 @@ export default function QuizApp() {
     setSelected(null); setUserPhoto(null); setUserName("");
     setChallengerNo(null); setTotalCount(null); setShowResult(false);
     setTimerActive(false); setTimeLeft(30);
-    setDoguMessage("いっしょに とき を たびしよう！");
+    setDoguMessage("いっしょに となみたびをしよう！");
+  };
+
+  // 証明書URL生成
+  const getCertUrl = () => {
+    const params = new URLSearchParams({
+      name: userName || "なまえなし",
+      score: String(score),
+      no: challengerNo || "----",
+      photo: userPhoto || "",
+    });
+    return `/certificate?${params.toString()}`;
   };
 
   const q = questions[qIndex];
@@ -252,54 +252,46 @@ export default function QuizApp() {
 
       {phase !== "warp" && <Particles />}
 
-      {/* ワープエフェクト */}
       {phase === "warp" && <WarpEffect onDone={() => setPhase("register")} />}
 
-      {/* ────── タイトル画面 ────── */}
+      {/* タイトル画面 */}
       {phase === "title" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, textAlign:"center" }}>
-          {/* ロゴ */}
           <div style={{ marginBottom:8 }}>
-            <p style={{ color:"#C8A96E", fontSize:13, letterSpacing:"0.3em", margin:"0 0 8px", fontFamily:"'Noto Serif JP',serif" }}>となみしょうそう</p>
+            <p style={{ color:"#C8A96E", fontSize:13, letterSpacing:"0.3em", margin:"0 0 8px", fontFamily:"'Noto Serif JP',serif" }}>となみしょうそ</p>
             <h1 className="title-text" style={{ color:"#FFD700", fontSize:32, fontWeight:700, margin:0, fontFamily:"'Noto Serif JP',serif", letterSpacing:"0.15em", lineHeight:1.3 }}>
-              ほほえみの土偶と<br/>ゆく！<br/>となみれきし<br/>なぞとき
+              ほほえみの土偶と<br/>ゆく<br/>となみれきし<br/>なぞとき
             </h1>
           </div>
-
-          {/* ドーグちゃん */}
           <div style={{ margin:"16px 0" }}>
             <Dogu mood="excited" size={130} />
           </div>
-
-          {/* セリフ */}
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", marginBottom:24, maxWidth:300 }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              ぬぅ〜！わしは<br/>「ドーグちゃん」じゃ🏺<br/>いっしょに じかんを たびして<br/>となみの れきしを まなぼうぞ！
+              ねえ！わしは<br/>「ドーグちゃん」じゃ！<br/>いっしょに どこかへ たびして<br/>となみの れきしを まなぼうぞ！
             </p>
           </div>
-
           <button className="start-btn" onClick={() => setPhase("warp")} style={{
             padding:"16px 40px", background:"linear-gradient(135deg,#FFD700,#C8A96E)",
             color:"#3B1F0A", border:"none", borderRadius:50, fontSize:18,
             fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif",
             boxShadow:"0 4px 20px rgba(255,215,0,0.5)", letterSpacing:"0.1em", marginBottom:16
           }}>
-            ✨ たびに でかける！
+            🌟 たびに でかける！
           </button>
-
           <a href="/hall-of-fame" style={{ color:"#C8A96E", fontSize:13, textDecoration:"none", fontFamily:"'Noto Sans JP',sans-serif" }}>
-            🏆 まんてん でんどう を みる
+            🏛 まんてんでんどうをみる
           </a>
         </div>
       )}
 
-      {/* ────── とうろく画面 ────── */}
+      {/* とうろく画面 */}
       {phase === "register" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24 }}>
           <Dogu mood="talk" size={100} />
           <div style={{ background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:16, padding:"12px 20px", margin:"12px 0 20px", maxWidth:300, textAlign:"center" }}>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:0, lineHeight:1.8, fontFamily:"'Noto Serif JP',serif" }}>
-              なまえを おしえてくれ！<br/>（なしでも だいじょうぶじゃ）
+              なまえを おしえてくれ！<br/>（なしでもいいぞ じゃ！）
             </p>
           </div>
           <input
@@ -318,7 +310,7 @@ export default function QuizApp() {
             background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A",
             border:"none", borderRadius:50, fontSize:16, fontWeight:700,
             cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10
-          }}>📷 しゃしんを とる →</button>
+          }}>📷 しゃしんをとる →</button>
           <button onClick={() => startQuiz()} style={{
             width:"100%", maxWidth:320, padding:"12px",
             background:"transparent", color:"#C8A96E",
@@ -328,11 +320,11 @@ export default function QuizApp() {
         </div>
       )}
 
-      {/* ────── カメラ画面 ────── */}
+      {/* カメラ画面 */}
       {phase === "camera" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, gap:16 }}>
           <Dogu mood="excited" size={80} />
-          <p style={{ color:"#FFE8A0", fontSize:15, fontFamily:"'Noto Serif JP',serif" }}>かおを まんなかに あわせてね📷</p>
+          <p style={{ color:"#FFE8A0", fontSize:15, fontFamily:"'Noto Serif JP',serif" }}>かおをまんなかに あわせてね📷</p>
           <div style={{ position:"relative", width:"100%", maxWidth:360, borderRadius:16, overflow:"hidden", background:"#2C1A0E", border:"2px solid #C8A96E", aspectRatio:"4/3" }}>
             <video ref={videoRef} autoPlay playsInline muted style={{ width:"100%", height:"100%", objectFit:"cover", transform:"scaleX(-1)", display:isCameraReady?"block":"none" }} />
             {!isCameraReady && !cameraError && <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}><p style={{ color:"#C8A96E" }}>カメラ きどうちゅう…</p></div>}
@@ -350,14 +342,12 @@ export default function QuizApp() {
         </div>
       )}
 
-      {/* ────── クイズ画面 ────── */}
+      {/* クイズ画面 */}
       {phase === "quiz" && q && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column" }}>
-
-          {/* ステータスバー */}
           <div style={{ background:"linear-gradient(135deg,#3B1F0A,#5C3317)", padding:"10px 16px", display:"flex", alignItems:"center", gap:10, borderBottom:"2px solid #C8A96E" }}>
             <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:8, padding:"4px 10px", border:"1px solid #C8A96E" }}>
-              <p style={{ margin:0, fontSize:11, color:"#C8A96E" }}>だい</p>
+              <p style={{ margin:0, fontSize:11, color:"#C8A96E" }}>もん</p>
               <p style={{ margin:0, fontSize:18, color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif" }}>{qIndex+1}<span style={{ fontSize:11, color:"#C8A96E" }}>もん</span></p>
             </div>
             <div style={{ flex:1 }}>
@@ -366,33 +356,24 @@ export default function QuizApp() {
               </div>
               <p style={{ margin:"4px 0 0", fontSize:11, color:"#C8A96E", textAlign:"center" }}>せいかい {score}もん / {questions.length}もん</p>
             </div>
-            {/* タイマー */}
             <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:8, padding:"4px 10px", border:"1px solid #C8A96E", textAlign:"center", minWidth:50 }}>
               <p style={{ margin:0, fontSize:10, color:"#C8A96E" }}>TIME</p>
               <p className={timeLeft <= 5 ? "timer-urgent" : ""} style={{ margin:0, fontSize:20, color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif" }}>{timeLeft}</p>
             </div>
-            {/* ユーザー写真 */}
             {userPhoto && <img src={userPhoto} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover", border:"2px solid #C8A96E", flexShrink:0 }} alt="you" />}
           </div>
-
-          {/* ドーグちゃん + セリフ */}
           <div style={{ display:"flex", alignItems:"flex-end", gap:12, padding:"12px 16px", background:"linear-gradient(180deg,#2C1005,#1A0A00)" }}>
             <Dogu mood={mood} size={80} />
             <div style={{ flex:1, background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:"16px 16px 16px 4px", padding:"10px 14px", maxWidth:260, animation:"slideIn 0.3s ease" }}>
               <p style={{ margin:0, fontSize:13, color:"#FFE8A0", lineHeight:1.7, fontFamily:"'Noto Serif JP',serif" }}>{doguMessage}</p>
             </div>
           </div>
-
-          {/* 問題文 */}
           <div style={{ margin:"0 12px 10px", background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.95))", border:"2px solid #C8A96E", borderRadius:16, padding:"14px 16px", boxShadow:"0 4px 16px rgba(0,0,0,0.5)", animation:"fadeUp 0.4s ease" }}>
             <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
               <span style={{ background:"#FFD700", color:"#3B1F0A", fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>{q.category}</span>
-              <span style={{ fontSize:11, color:"#C8A96E" }}>{'★'.repeat(2)}</span>
             </div>
             <p style={{ margin:0, fontSize:15, color:"#FFE8A0", lineHeight:1.8, fontFamily:"'Noto Serif JP',serif", fontWeight:500 }}>{q.question}</p>
           </div>
-
-          {/* 選択肢（ゲームパッド風） */}
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:"0 12px 16px" }}>
             {q.choices.map((c, i) => {
               let bg = `linear-gradient(135deg,${btnColors[i]},${btnColors[i]}CC)`;
@@ -421,14 +402,14 @@ export default function QuizApp() {
         </div>
       )}
 
-      {/* ────── けっか画面 ────── */}
+      {/* けっか画面 */}
       {phase === "result" && (
         <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:24, textAlign:"center" }}>
           <Dogu mood={score===10?"excited":score>=7?"happy":score>=4?"idle":"wrong"} size={120} />
 
           {userPhoto && <img src={userPhoto} style={{ width:60, height:60, borderRadius:"50%", objectFit:"cover", border:"3px solid #FFD700", margin:"8px auto" }} alt="you" />}
           {userName && <p style={{ color:"#FFE8A0", fontSize:16, margin:"4px 0", fontFamily:"'Noto Serif JP',serif" }}>{userName}</p>}
-          {challengerNo && <p style={{ color:"#C8A96E", fontSize:12, margin:"2px 0 12px" }}>ちょうせんしゃ No.{challengerNo} ／ これまで {totalCount?.toLocaleString()}にんが ちょうせん！</p>}
+          {challengerNo && <p style={{ color:"#C8A96E", fontSize:12, margin:"2px 0 12px" }}>ちゃれんじゃ No.{challengerNo} ・ これまで {totalCount?.toLocaleString()}にんが ちゃれんじ！</p>}
 
           <div style={{ background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.9))", border:"2px solid #FFD700", borderRadius:20, padding:"20px 32px", marginBottom:20, boxShadow:"0 0 30px rgba(255,215,0,0.3)" }}>
             <p style={{ color:"#C8A96E", fontSize:14, margin:"0 0 4px", fontFamily:"'Noto Sans JP',sans-serif" }}>せいかい すう</p>
@@ -436,20 +417,38 @@ export default function QuizApp() {
               {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{questions.length}</span>
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Noto Serif JP',serif" }}>
-              {score===10?"🏆 かんぜん せいは！ でんどういり！":
-               score>=7?"🌟 すごい！ れきし はかせに ちかい！":
-               score>=4?"📚 もうすこし！ がんばれ！":"🔍 いっしょに もっと まなぼうぞ！"}
+              {score===10?"🏆 かんぺき！せいかいはぜんぶじゃ！":
+               score>=7?"🎉 すごい！れきしはかせにちかい！":
+               score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうぞ！"}
             </p>
           </div>
 
+          {/* 受講証明書ボタン（全員表示） */}
+          <a
+            href={getCertUrl()}
+            style={{
+              display:"block", width:"100%", maxWidth:300,
+              marginBottom:12, padding:"14px 24px",
+              background:"linear-gradient(135deg,#3B1F0A,#5C3317)",
+              color:"#FFD700", border:"2px solid #FFD700",
+              borderRadius:50, fontSize:15, fontWeight:700,
+              textDecoration:"none", fontFamily:"'Noto Serif JP',serif",
+              letterSpacing:"0.05em", textAlign:"center",
+              boxShadow:"0 0 20px rgba(255,215,0,0.3)",
+              boxSizing:"border-box",
+            }}
+          >
+            📜 受講証明書を見る
+          </a>
+
           {score===10 && (
-            <a href="/hall-of-fame" style={{ display:"block", marginBottom:12, padding:"10px 24px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", borderRadius:50, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"'Noto Serif JP',serif" }}>
-              🏆 でんどうを みる
+            <a href="/hall-of-fame" style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"10px 24px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", borderRadius:50, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"'Noto Serif JP',serif", textAlign:"center", boxSizing:"border-box" }}>
+              🏛 でんどうをみる
             </a>
           )}
 
           <button onClick={() => { reset(); setTimeout(() => setPhase("warp"),100); setTimeout(()=>setPhase("register"),2900); }} style={{ width:"100%", maxWidth:300, padding:"14px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Noto Serif JP',serif", marginBottom:10 }}>
-            もう いちど ちょうせん！
+            もう いちど ちゃれんじ！
           </button>
           <button onClick={reset} style={{ color:"#C8A96E", background:"transparent", border:"1.5px solid #C8A96E", borderRadius:50, padding:"10px 24px", fontSize:13, cursor:"pointer" }}>
             タイトルに もどる
