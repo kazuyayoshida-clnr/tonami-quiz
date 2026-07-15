@@ -125,7 +125,7 @@ export default function QuizApp() {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     hintTimerRef.current = setTimeout(() => {
       setMood("think");
-      setDoguMessage(questions[idx].hint + "…ヒントだよ！");
+      setDoguMessage(gameQuestions[idx].hint + "…ヒントだよ！");
     }, 10000);
   }, []);
 
