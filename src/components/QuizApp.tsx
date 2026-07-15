@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Dogu from "./Dogu";
-import { questions } from "@/lib/questions";
+import { allQuestions } from "@/lib/questions";
 
 type Phase = "title" | "warp" | "register" | "camera" | "quiz" | "result";
 type Mood = "idle" | "happy" | "think" | "correct" | "wrong" | "excited" | "talk";
@@ -60,7 +60,17 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
   );
 }
 
+// ランダムに10問選択（重複なし）
+function getRandomQuestions() {
+  const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 10);
+}
+
 export default function QuizApp() {
+  const [gameQuestions, setGameQuestions] = useState(() => getRandomQuestions());
+  const [judgeMark, setJudgeMark] = useState<"correct" | "wrong" | null>(null);
+  const [bgmOn, setBgmOn] = useState(true);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
   const [phase, setPhase] = useState<Phase>("title");
   const [mood, setMood] = useState<Mood>("idle");
   const [qIndex, setQIndex] = useState(0);
@@ -98,7 +108,9 @@ export default function QuizApp() {
     setTimerActive(false);
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     setMood("wrong");
-    setDoguMessage(`じかんぎれ！せいかいは「${questions[qIndex].choices[questions[qIndex].answer]}」だったよ。つぎがんばろうね！`);
+    setDoguMessage(`じかんぎれ！せいかいは「${gameQuestions[qIndex].choices[gameQuestions[qIndex].answer]}」だったよ。つぎがんばろうね！`);
+    setJudgeMark("wrong");
+    setTimeout(() => setJudgeMark(null), 1500);
     setTimeout(() => nextQuestion(false), 3000);
   }, [selected, qIndex]);
 
@@ -118,6 +130,7 @@ export default function QuizApp() {
   }, []);
 
   const startQuiz = useCallback(() => {
+    setGameQuestions(getRandomQuestions());
     setScore(0);
     setShowResult(false);
     startQuestion(0);
@@ -126,7 +139,7 @@ export default function QuizApp() {
 
   const nextQuestion = useCallback((correct: boolean) => {
     const next = qIndex + 1;
-    if (next >= questions.length) {
+    if (next >= gameQuestions.length) {
       setTimerActive(false);
       setPhase("result");
       setShowResult(true);
@@ -151,16 +164,19 @@ export default function QuizApp() {
     setSelected(idx);
     setTimerActive(false);
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
-    const q = questions[qIndex];
+    const q = gameQuestions[qIndex];
     const isCorrect = idx === q.answer;
     if (isCorrect) {
       setScore(s => s + 1);
       setMood("correct");
       setDoguMessage("やったー！🎉 せいかい！" + q.explanation);
+      setJudgeMark("correct");
     } else {
       setMood("wrong");
       setDoguMessage("ざんねん💦 せいかいは「" + q.choices[q.answer] + "」だよ。" + q.explanation);
+      setJudgeMark("wrong");
     }
+    setTimeout(() => setJudgeMark(null), 1500);
     setTimeout(() => nextQuestion(isCorrect), 3500);
   }, [selected, qIndex, nextQuestion]);
 
@@ -206,6 +222,45 @@ export default function QuizApp() {
     stopCamera(); startQuiz();
   }, [stopCamera, startQuiz]);
 
+  // BGM常時再生（ページ読み込み時に自動再生を試行、ブロック時は初回タッチで開始）
+  useEffect(() => {
+    const audio = new Audio("/bgm.mp3");
+    audio.loop = true;
+    audio.volume = 0.3;
+    bgmRef.current = audio;
+
+    // まず自動再生を試みる
+    audio.play().catch(() => {
+      // ブロックされた場合：初回のユーザー操作で再生開始
+      const startOnInteract = () => {
+        audio.play().catch(() => {});
+        document.removeEventListener("pointerdown", startOnInteract);
+        document.removeEventListener("keydown", startOnInteract);
+        document.removeEventListener("touchstart", startOnInteract);
+      };
+      document.addEventListener("pointerdown", startOnInteract);
+      document.addEventListener("keydown", startOnInteract);
+      document.addEventListener("touchstart", startOnInteract);
+    });
+
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
+  }, []);
+
+  // BGM ON/OFF切り替え
+  const toggleBgm = useCallback(() => {
+    setBgmOn(prev => {
+      const next = !prev;
+      if (bgmRef.current) {
+        if (next) bgmRef.current.play().catch(() => {});
+        else bgmRef.current.pause();
+      }
+      return next;
+    });
+  }, []);
+
   const reset = () => {
     setPhase("title"); setMood("idle"); setScore(0); setQIndex(0);
     setSelected(null); setUserPhoto(null); setUserName("");
@@ -227,7 +282,7 @@ export default function QuizApp() {
     return `/certificate?${params.toString()}`;
   };
 
-  const q = questions[qIndex];
+  const q = gameQuestions[qIndex];
   const btnColors = ["#E8392A","#2A6AE8","#2AAE2A","#E8A02A"];
   const btnLabels = ["Ａ","Ｂ","Ｃ","Ｄ"];
 
@@ -243,10 +298,28 @@ export default function QuizApp() {
         .title-text{animation:titleGlow 2s ease-in-out infinite}
         .start-btn{animation:btnPulse 2s ease-in-out infinite}
         .timer-urgent{animation:timerPulse 0.5s ease-in-out infinite;color:#FF4444 !important}
+        @keyframes judgePop{0%{transform:scale(0) rotate(-20deg);opacity:0}60%{transform:scale(1.15) rotate(3deg)}100%{transform:scale(1) rotate(0deg);opacity:1}}
+        @keyframes judgeFade{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
         ruby rt{font-size:0.55em;color:#C8A96E}
       `}</style>
 
       {phase !== "warp" && <Particles />}
+
+      {/* BGM ON/OFFボタン（右上固定） */}
+      <button
+        onClick={toggleBgm}
+        style={{
+          position:"fixed", top:12, right:12, zIndex:150,
+          width:48, height:48, borderRadius:"50%",
+          background:"rgba(59,31,10,0.85)", border:"2px solid #C8A96E",
+          color:"#FFD700", fontSize:20, cursor:"pointer",
+          display:"flex", alignItems:"center", justifyContent:"center",
+        }}
+        aria-label="BGM切り替え"
+      >
+        {bgmOn ? "🔊" : "🔇"}
+      </button>
+
       {phase === "warp" && <WarpEffect onDone={() => setPhase("register")} />}
 
       {/* タイトル画面 */}
@@ -304,53 +377,86 @@ export default function QuizApp() {
         </div>
       )}
 
-      {/* クイズ画面 */}
+      {/* クイズ画面（大画面ワイドレイアウト） */}
       {phase === "quiz" && q && (
-        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column" }}>
-          <div style={{ background:"linear-gradient(135deg,#3B1F0A,#5C3317)", padding:"10px 16px", display:"flex", alignItems:"center", gap:10, borderBottom:"2px solid #C8A96E" }}>
-            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:8, padding:"4px 10px", border:"1px solid #C8A96E" }}>
-              <p style={{ margin:0, fontSize:11, color:"#C8A96E" }}>もん</p>
-              <p style={{ margin:0, fontSize:18, color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif" }}>{qIndex+1}<span style={{ fontSize:11, color:"#C8A96E" }}>もん</span></p>
-            </div>
-            <div style={{ flex:1 }}>
-              <div style={{ height:8, background:"rgba(0,0,0,0.4)", borderRadius:4, overflow:"hidden", border:"1px solid #C8A96E" }}>
-                <div style={{ height:"100%", background:"linear-gradient(90deg,#FFD700,#C8A96E)", width:`${((qIndex)/questions.length)*100}%`, transition:"width 0.5s ease", borderRadius:4 }} />
+        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", padding:"1.5vh 2vw", boxSizing:"border-box" }}>
+
+          {/* ⭕❌ 全画面ジャッジオーバーレイ */}
+          {judgeMark && (
+            <div style={{
+              position:"fixed", inset:0, zIndex:200,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              background: judgeMark==="correct" ? "rgba(29,158,117,0.25)" : "rgba(138,26,26,0.3)",
+              animation:"judgeFade 1.5s ease forwards", pointerEvents:"none",
+            }}>
+              <div style={{
+                fontSize:"min(60vw, 60vh)", fontWeight:700, lineHeight:1,
+                color: judgeMark==="correct" ? "#4DFFC0" : "#FF6B6B",
+                textShadow: judgeMark==="correct" ? "0 0 80px #1D9E75, 0 0 160px #4DFFC0" : "0 0 80px #8A1A1A, 0 0 160px #FF6B6B",
+                animation:"judgePop 0.5s cubic-bezier(0.34,1.56,0.64,1)",
+                fontFamily:"'Noto Sans JP',sans-serif",
+              }}>
+                {judgeMark==="correct" ? "⭕" : "❌"}
               </div>
-              <p style={{ margin:"4px 0 0", fontSize:11, color:"#C8A96E", textAlign:"center" }}>せいかい {score}もん / {questions.length}もん</p>
             </div>
-            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:8, padding:"4px 10px", border:"1px solid #C8A96E", textAlign:"center", minWidth:50 }}>
-              <p style={{ margin:0, fontSize:10, color:"#C8A96E" }}>TIME</p>
-              <p className={timeLeft <= 5 ? "timer-urgent" : ""} style={{ margin:0, fontSize:20, color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif" }}>{timeLeft}</p>
+          )}
+
+          {/* ヘッダー行：問題番号・カテゴリ・進捗・タイマー */}
+          <div style={{ display:"flex", alignItems:"center", gap:"1.5vw", marginBottom:"1.5vh" }}>
+            <div style={{ background:"linear-gradient(135deg,#3B1F0A,#5C3317)", border:"2px solid #C8A96E", borderRadius:16, padding:"1vh 1.5vw", textAlign:"center", flexShrink:0 }}>
+              <p style={{ margin:0, fontSize:"clamp(11px,1.2vw,18px)", color:"#C8A96E" }}>だい</p>
+              <p style={{ margin:0, fontSize:"clamp(24px,3.2vw,48px)", color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif", lineHeight:1.1 }}>{qIndex+1}<span style={{ fontSize:"clamp(12px,1.4vw,20px)", color:"#C8A96E" }}>もん</span></p>
             </div>
-            {userPhoto && <img src={userPhoto} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover", border:"2px solid #C8A96E", flexShrink:0 }} alt="you" />}
+            <div style={{ background:"#FFD700", color:"#3B1F0A", fontSize:"clamp(14px,1.6vw,24px)", fontWeight:700, padding:"1vh 1.5vw", borderRadius:30, flexShrink:0 }}>{q.category}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ height:"clamp(10px,1.4vh,16px)", background:"rgba(0,0,0,0.4)", borderRadius:8, overflow:"hidden", border:"1px solid #C8A96E" }}>
+                <div style={{ height:"100%", background:"linear-gradient(90deg,#FFD700,#C8A96E)", width:`${((qIndex)/gameQuestions.length)*100}%`, transition:"width 0.5s ease", borderRadius:8 }} />
+              </div>
+              <p style={{ margin:"0.5vh 0 0", fontSize:"clamp(11px,1.3vw,18px)", color:"#C8A96E", textAlign:"center" }}>せいかい {score}もん / {gameQuestions.length}もん</p>
+            </div>
+            {/* タイマー */}
+            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:16, padding:"1vh 1.5vw", border:"2px solid #C8A96E", textAlign:"center", minWidth:"7vw", flexShrink:0 }}>
+              <p style={{ margin:0, fontSize:"clamp(10px,1.1vw,16px)", color:"#C8A96E" }}>のこり</p>
+              <p className={timeLeft <= 10 ? "timer-urgent" : ""} style={{ margin:0, fontSize:"clamp(28px,3.6vw,56px)", color:"#FFD700", fontWeight:700, fontFamily:"'Noto Serif JP',serif", lineHeight:1.1 }}>{timeLeft}</p>
+            </div>
+            {userPhoto && <img src={userPhoto} style={{ width:"clamp(40px,4.5vw,70px)", height:"clamp(40px,4.5vw,70px)", borderRadius:"50%", objectFit:"cover", border:"3px solid #C8A96E", flexShrink:0 }} alt="you" />}
           </div>
-          <div style={{ display:"flex", alignItems:"flex-end", gap:12, padding:"12px 16px", background:"linear-gradient(180deg,#2C1005,#1A0A00)" }}>
-            <Dogu mood={mood} size={80} />
-            <div style={{ flex:1, background:"rgba(200,169,110,0.15)", border:"1.5px solid #C8A96E", borderRadius:"16px 16px 16px 4px", padding:"10px 14px", maxWidth:260, animation:"slideIn 0.3s ease" }}>
-              <p style={{ margin:0, fontSize:13, color:"#FFE8A0", lineHeight:1.7, fontFamily:"'Noto Serif JP',serif" }}>{doguMessage}</p>
+
+          {/* 問題文（大きく中央） */}
+          <div style={{ background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.95))", border:"3px solid #C8A96E", borderRadius:24, padding:"2.5vh 3vw", boxShadow:"0 6px 24px rgba(0,0,0,0.5)", animation:"fadeUp 0.4s ease", marginBottom:"1.5vh" }}>
+            <p style={{ margin:0, fontSize:"clamp(18px,2.6vw,40px)", color:"#FFE8A0", lineHeight:1.8, fontFamily:"'Noto Serif JP',serif", fontWeight:600, textAlign:"center" }}>{q.question}</p>
+          </div>
+
+          {/* ドーグちゃん + ヒント（横並び） */}
+          <div style={{ display:"flex", alignItems:"center", gap:"1.5vw", marginBottom:"1.5vh" }}>
+            <Dogu mood={mood} size={Math.min(130, 110)} />
+            <div style={{ flex:1, background:"rgba(200,169,110,0.15)", border:"2px solid #C8A96E", borderRadius:"20px 20px 20px 6px", padding:"1.5vh 2vw", animation:"slideIn 0.3s ease" }}>
+              <p style={{ margin:0, fontSize:"clamp(14px,1.8vw,28px)", color:"#FFE8A0", lineHeight:1.7, fontFamily:"'Noto Serif JP',serif" }}>{doguMessage}</p>
             </div>
           </div>
-          <div style={{ margin:"0 12px 10px", background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.95))", border:"2px solid #C8A96E", borderRadius:16, padding:"14px 16px", boxShadow:"0 4px 16px rgba(0,0,0,0.5)", animation:"fadeUp 0.4s ease" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-              <span style={{ background:"#FFD700", color:"#3B1F0A", fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>{q.category}</span>
-            </div>
-            <p style={{ margin:0, fontSize:15, color:"#FFE8A0", lineHeight:1.8, fontFamily:"'Noto Serif JP',serif", fontWeight:500 }}>{q.question}</p>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:"0 12px 16px" }}>
+
+          {/* 選択肢（2×2 大きなグリッド） */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.5vh 1.5vw", flex:1, minHeight:0 }}>
             {q.choices.map((c, i) => {
               let bg = `linear-gradient(135deg,${btnColors[i]},${btnColors[i]}CC)`;
-              let border = "2px solid rgba(255,255,255,0.2)";
+              let border = "3px solid rgba(255,255,255,0.2)";
               let opacity = 1;
               if (selected !== null) {
-                if (i === q.answer) { bg = "linear-gradient(135deg,#1D9E75,#0F6E56)"; border = "2px solid #4DFFC0"; }
-                else if (i === selected && i !== q.answer) { bg = "linear-gradient(135deg,#8A1A1A,#600)"; border = "2px solid #FF6B6B"; }
+                if (i === q.answer) { bg = "linear-gradient(135deg,#1D9E75,#0F6E56)"; border = "3px solid #4DFFC0"; }
+                else if (i === selected && i !== q.answer) { bg = "linear-gradient(135deg,#8A1A1A,#600)"; border = "3px solid #FF6B6B"; }
                 else { opacity = 0.4; }
               }
               return (
                 <button key={i} onClick={() => selected===null && handleAnswer(i)}
-                  style={{ padding:"14px 10px", background:bg, border, borderRadius:12, color:"#FFF", fontSize:14, fontWeight:700, cursor:selected===null?"pointer":"default", fontFamily:"'Noto Sans JP',sans-serif", textAlign:"left", lineHeight:1.5, boxShadow:"0 3px 10px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s", display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ fontSize:18, fontWeight:700, opacity:0.9 }}>{btnLabels[i]}</span>
-                  <span style={{ fontSize:13 }}>{c}</span>
+                  style={{
+                    padding:"2vh 2vw", background:bg, border, borderRadius:20,
+                    color:"#FFF", cursor:selected===null?"pointer":"default",
+                    fontFamily:"'Noto Sans JP',sans-serif", textAlign:"left", lineHeight:1.5,
+                    boxShadow:"0 4px 14px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s",
+                    display:"flex", alignItems:"center", gap:"1.5vw",
+                  }}>
+                  <span style={{ fontSize:"clamp(28px,3.6vw,56px)", fontWeight:700, opacity:0.95, flexShrink:0, width:"clamp(36px,4.5vw,70px)", height:"clamp(36px,4.5vw,70px)", borderRadius:"50%", background:"rgba(255,255,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>{btnLabels[i]}</span>
+                  <span style={{ fontSize:"clamp(16px,2.2vw,34px)", fontWeight:700 }}>{c}</span>
                 </button>
               );
             })}
@@ -368,7 +474,7 @@ export default function QuizApp() {
           <div style={{ background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.9))", border:"2px solid #FFD700", borderRadius:20, padding:"20px 32px", marginBottom:20, boxShadow:"0 0 30px rgba(255,215,0,0.3)" }}>
             <p style={{ color:"#C8A96E", fontSize:14, margin:"0 0 4px", fontFamily:"'Noto Sans JP',sans-serif" }}>せいかい すう</p>
             <p style={{ color:"#FFD700", fontSize:64, fontWeight:700, margin:0, fontFamily:"'Noto Serif JP',serif", textShadow:"0 0 20px #FFD700" }}>
-              {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{questions.length}</span>
+              {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{gameQuestions.length}</span>
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Noto Serif JP',serif" }}>
               {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":score>=7?"🎉 すごい！れきしはかせにちかいよ！":score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
