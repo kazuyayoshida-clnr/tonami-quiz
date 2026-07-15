@@ -69,6 +69,9 @@ function getRandomQuestions() {
 export default function QuizApp() {
   const [gameQuestions, setGameQuestions] = useState(() => getRandomQuestions());
   const [judgeMark, setJudgeMark] = useState<"correct" | "wrong" | null>(null);
+  const [nextCountdown, setNextCountdown] = useState<number | null>(null);
+  const nextCountdownRef = useRef<NodeJS.Timeout | null>(null);
+  const nextCountdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [bgmOn, setBgmOn] = useState(true);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const [phase, setPhase] = useState<Phase>("title");
@@ -111,7 +114,21 @@ export default function QuizApp() {
     setDoguMessage(`じかんぎれ！せいかいは「${gameQuestions[qIndex].choices[gameQuestions[qIndex].answer]}」だったよ。つぎがんばろうね！`);
     setJudgeMark("wrong");
     setTimeout(() => setJudgeMark(null), 1500);
-    setTimeout(() => nextQuestion(false), 3000);
+    setNextCountdown(10);
+    nextCountdownIntervalRef.current = setInterval(() => {
+      setNextCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          if (nextCountdownIntervalRef.current) clearInterval(nextCountdownIntervalRef.current);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    nextCountdownRef.current = setTimeout(() => {
+      if (nextCountdownIntervalRef.current) clearInterval(nextCountdownIntervalRef.current);
+      setNextCountdown(null);
+      nextQuestion(false);
+    }, 10000);
   }, [selected, qIndex]);
 
   const startQuestion = useCallback((idx: number) => {
@@ -177,7 +194,22 @@ export default function QuizApp() {
       setJudgeMark("wrong");
     }
     setTimeout(() => setJudgeMark(null), 1500);
-    setTimeout(() => nextQuestion(isCorrect), 3500);
+    // 10秒後に自動で次の問題へ
+    setNextCountdown(10);
+    nextCountdownIntervalRef.current = setInterval(() => {
+      setNextCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          if (nextCountdownIntervalRef.current) clearInterval(nextCountdownIntervalRef.current);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    nextCountdownRef.current = setTimeout(() => {
+      if (nextCountdownIntervalRef.current) clearInterval(nextCountdownIntervalRef.current);
+      setNextCountdown(null);
+      nextQuestion(isCorrect);
+    }, 10000);
   }, [selected, qIndex, nextQuestion]);
 
   const startCamera = useCallback(async () => {
@@ -260,6 +292,14 @@ export default function QuizApp() {
       return next;
     });
   }, []);
+
+  // 次の問題へ（早送り）
+  const goNextQuestion = useCallback((isCorrect: boolean) => {
+    if (nextCountdownRef.current) clearTimeout(nextCountdownRef.current);
+    if (nextCountdownIntervalRef.current) clearInterval(nextCountdownIntervalRef.current);
+    setNextCountdown(null);
+    nextQuestion(isCorrect);
+  }, [nextQuestion]);
 
   const reset = () => {
     setPhase("title"); setMood("idle"); setScore(0); setQIndex(0);
@@ -386,7 +426,7 @@ export default function QuizApp() {
             <div style={{
               position:"fixed", inset:0, zIndex:200,
               display:"flex", alignItems:"center", justifyContent:"center",
-              background: judgeMark==="correct" ? "rgba(29,158,117,0.25)" : "rgba(255,140,0,0.2)",
+              background: judgeMark==="correct" ? "rgba(29,158,117,0.25)" : "rgba(0,0,0,0)",
               animation:"judgeFade 1.5s ease forwards", pointerEvents:"none",
             }}>
               <div style={{
@@ -396,19 +436,9 @@ export default function QuizApp() {
                 animation:"judgePop 0.5s cubic-bezier(0.34,1.56,0.64,1)",
                 fontFamily:"'Zen Maru Gothic', sans-serif",
               }}>
-                {judgeMark==="correct"
-                  ? <span style={{ fontSize:"min(55vw,55vh)" }}>⭕</span>
-                  : <div style={{ textAlign:"center" }}>
-                      <div style={{ fontSize:"min(16vw,16vh)", fontWeight:900 }}>おしい！</div>
-                      <div style={{ fontSize:"min(7vw,7vh)", fontWeight:700, marginTop:"2vh", lineHeight:1.8 }}>
-                        せいかいは<br/>
-                        <span style={{ color:"#FFD700", fontSize:"min(9vw,9vh)", display:"block" }}>
-                          {gameQuestions[qIndex]?.choices[gameQuestions[qIndex]?.answer]}
-                        </span>
-                        だったよ！
-                      </div>
-                    </div>
-                }
+                <span style={{ fontSize:"min(55vw,55vh)" }}>
+                  {judgeMark==="correct" ? "⭕" : ""}
+                </span>
               </div>
             </div>
           )}
@@ -454,9 +484,12 @@ export default function QuizApp() {
               let border = "3px solid rgba(255,255,255,0.2)";
               let opacity = 1;
               if (selected !== null) {
-                if (i === q.answer) { bg = "linear-gradient(135deg,#1D9E75,#0F6E56)"; border = "3px solid #4DFFC0"; }
+                if (i === q.answer) {
+                  bg = "linear-gradient(135deg,#FFD700,#C8A96E)";
+                  border = "4px solid #FFD700";
+                }
                 else if (i === selected && i !== q.answer) { bg = "linear-gradient(135deg,#8A1A1A,#600)"; border = "3px solid #FF6B6B"; }
-                else { opacity = 0.4; }
+                else { opacity = 0.3; }
               }
               return (
                 <button key={i} onClick={() => selected===null && handleAnswer(i)}
@@ -473,6 +506,28 @@ export default function QuizApp() {
               );
             })}
           </div>
+
+          {/* 次の問題へボタン */}
+          {selected !== null && (
+            <div style={{ padding:"8px 12px 16px", display:"flex", alignItems:"center", gap:12 }}>
+              <button
+                onClick={() => goNextQuestion(selected === q.answer)}
+                style={{
+                  flex:1, padding:"clamp(10px,1.5vh,18px)",
+                  background:"linear-gradient(135deg,#FFD700,#C8A96E)",
+                  color:"#3B1F0A", border:"none", borderRadius:50,
+                  fontSize:"clamp(14px,1.8vw,24px)", fontWeight:700,
+                  cursor:"pointer", fontFamily:"'Zen Maru Gothic', sans-serif",
+                  letterSpacing:"0.05em",
+                }}
+              >
+                つぎの もんだいへ →
+                {nextCountdown !== null && (
+                  <span style={{ marginLeft:8, fontSize:"0.8em", opacity:0.7 }}>（{nextCountdown}秒）</span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -489,19 +544,19 @@ export default function QuizApp() {
               {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{gameQuestions.length}</span>
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Zen Maru Gothic', sans-serif" }}>
-              {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":score>=7?"🎉 すごい！れきしはかせにちかいよ！":score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
+              {score===10?"🏆 かんぺき！全問正解で殿堂入りだよ！":score>=7?"🎉 すごい！砺波の歴史博士（れきしはかせ）にちかいよ！":score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
             </p>
           </div>
           <a href={getCertUrl()} style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"14px 24px", background:"linear-gradient(135deg,#3B1F0A,#5C3317)", color:"#FFD700", border:"2px solid #FFD700", borderRadius:50, fontSize:15, fontWeight:700, textDecoration:"none", fontFamily:"'Zen Maru Gothic', sans-serif", letterSpacing:"0.05em", textAlign:"center", boxShadow:"0 0 20px rgba(255,215,0,0.3)", boxSizing:"border-box" }}>
-            📜 受講証明書を見る
+            📜 受講証書を見る
           </a>
           {score===10 && (
             <a href="/hall-of-fame" style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"10px 24px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", borderRadius:50, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"'Zen Maru Gothic', sans-serif", textAlign:"center", boxSizing:"border-box" }}>
-              🏛 でんどうをみる
+              🏛 でんどういりをみる
             </a>
           )}
           <button onClick={() => { reset(); setTimeout(() => setPhase("warp"),100); setTimeout(()=>setPhase("register"),2900); }} style={{ width:"100%", maxWidth:300, padding:"14px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Zen Maru Gothic', sans-serif", marginBottom:10 }}>
-            もう いちど ちゃれんじ！
+            もう いちど チャレンジ！
           </button>
           <button onClick={reset} style={{ color:"#C8A96E", background:"transparent", border:"1.5px solid #C8A96E", borderRadius:50, padding:"10px 24px", fontSize:13, cursor:"pointer" }}>
             タイトルに もどる
