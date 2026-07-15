@@ -41,13 +41,13 @@ export default function CertificateContent() {
     <div style={{
       minHeight: "100dvh",
       background: "#1A0E05",
-      fontFamily: "'Noto Serif JP', serif",
+      fontFamily: "'Zen Maru Gothic', sans-serif",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(255,215,0,0.3)}50%{box-shadow:0 0 40px rgba(255,215,0,0.6)}}
         .cert-card{animation:fadeUp 0.6s ease, glow 3s ease-in-out infinite}
@@ -107,7 +107,7 @@ export default function CertificateContent() {
           <p style={{ textAlign:"center", fontSize:20, fontWeight:700, color:"#3B1F0A", margin:"0 0 3px", letterSpacing:"0.1em" }}>
             {name}　殿
           </p>
-          <p style={{ textAlign:"center", fontSize:10, color:"#8B5E3C", margin:"0 0 14px", fontFamily:"'Noto Sans JP', sans-serif" }}>
+          <p style={{ textAlign:"center", fontSize:10, color:"#8B5E3C", margin:"0 0 14px", fontFamily:"'Zen Maru Gothic', sans-serif" }}>
             挑戦者 No.{no}
           </p>
 
@@ -133,13 +133,13 @@ export default function CertificateContent() {
               <p style={{ margin:0, fontSize:10, color:"#8B5E3C", letterSpacing:"0.1em" }}>砺波市埋蔵文化財センター</p>
               <p style={{ margin:"2px 0 0", fontSize:14, fontWeight:700, color:"#3B1F0A", letterSpacing:"0.15em" }}>ドーグちゃん</p>
             </div>
-            <Dogu mood="welcome" size={56} />
+            <Dogu mood="happy" size={56} />
           </div>
         </div>
       </div>
 
       {/* スクロール促進の矢印 */}
-      <div style={{ textAlign:"center", padding:"8px 0", color:"#C8A96E", fontSize:12, fontFamily:"'Noto Sans JP', sans-serif" }}>
+      <div style={{ textAlign:"center", padding:"8px 0", color:"#C8A96E", fontSize:12, fontFamily:"'Zen Maru Gothic', sans-serif" }}>
         ▼ スクロールしてQRコードを見る
       </div>
 
@@ -152,23 +152,23 @@ export default function CertificateContent() {
       }}>
         {/* QRコード */}
         <div style={{ background:"linear-gradient(160deg,#FDF6E3,#F5EFE0)", border:"2px solid #C8A96E", borderRadius:16, padding:"24px 16px", textAlign:"center", marginBottom:16 }}>
-          <p style={{ fontSize:13, color:"#8B5E3C", margin:"0 0 12px", letterSpacing:"0.05em", fontFamily:"'Noto Sans JP', sans-serif" }}>
+          <p style={{ fontSize:13, color:"#8B5E3C", margin:"0 0 12px", letterSpacing:"0.05em", fontFamily:"'Zen Maru Gothic', sans-serif" }}>
             📱 このQRコードでスマホにも表示できます
           </p>
           {qrUrl && (
             <img src={qrUrl} alt="QRコード" style={{ width:140, height:140, borderRadius:8, border:"1px solid #C8A96E" }} />
           )}
-          <p style={{ fontSize:11, color:"#A08060", margin:"10px 0 0", fontFamily:"'Noto Sans JP', sans-serif" }}>
+          <p style={{ fontSize:11, color:"#A08060", margin:"10px 0 0", fontFamily:"'Zen Maru Gothic', sans-serif" }}>
             1ページ目をスクリーンショットで保存できます
           </p>
         </div>
 
         {/* 個人情報の取り扱い */}
         <div style={{ background:"rgba(253,246,227,0.05)", border:"1px solid #5C3D1E", borderRadius:12, padding:"16px" }}>
-          <p style={{ fontSize:11, color:"#C8A96E", fontWeight:700, margin:"0 0 8px", letterSpacing:"0.1em", fontFamily:"'Noto Sans JP', sans-serif" }}>
+          <p style={{ fontSize:11, color:"#C8A96E", fontWeight:700, margin:"0 0 8px", letterSpacing:"0.1em", fontFamily:"'Zen Maru Gothic', sans-serif" }}>
             【個人情報の取り扱いについて】
           </p>
-          <p style={{ fontSize:11, color:"#9A7A5A", lineHeight:1.9, margin:0, fontFamily:"'Noto Sans JP', sans-serif", textAlign:"justify" }}>
+          <p style={{ fontSize:11, color:"#9A7A5A", lineHeight:1.9, margin:0, fontFamily:"'Zen Maru Gothic', sans-serif", textAlign:"justify" }}>
             本証明書に使用された顔写真データは、セキュリティ保護の観点より、
             発行から<strong style={{ color:"#C8A96E" }}>3分後に自動的に削除</strong>されます。
             当該データは本証明書の表示目的のみに使用され、
@@ -178,7 +178,7 @@ export default function CertificateContent() {
         </div>
 
         {/* 戻るボタン */}
-        <a href="/" style={{ display:"block", marginTop:24, padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, textDecoration:"none", fontFamily:"'Noto Sans JP', sans-serif", textAlign:"center" }}>
+        <a href="/" style={{ display:"block", marginTop:24, padding:"12px 32px", background:"transparent", color:"#C8A96E", border:"1.5px solid #C8A96E", borderRadius:50, fontSize:14, textDecoration:"none", fontFamily:"'Zen Maru Gothic', sans-serif", textAlign:"center" }}>
           ← クイズにもどる
         </a>
       </div>
