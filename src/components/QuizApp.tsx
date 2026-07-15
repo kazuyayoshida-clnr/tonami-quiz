@@ -477,6 +477,29 @@ export default function QuizApp() {
             </div>
           </div>
 
+          {/* 選択肢エリア（ざんねんオーバーレイ付き） */}
+          <div style={{ position:"relative" }}>
+          {/* ざんねんオーバーレイ */}
+          {judgeMark === "wrong" && (
+            <div style={{
+              position:"absolute", inset:0, zIndex:50,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              borderRadius:16, pointerEvents:"none",
+              animation:"judgeFade 10s ease forwards",
+            }}>
+              <div style={{
+                fontSize:"clamp(60px,12vw,160px)",
+                fontWeight:900,
+                color:"#8899AA",
+                textShadow:"0 0 40px #445566, 0 0 80px #334455",
+                fontFamily:"'Zen Maru Gothic', sans-serif",
+                animation:"judgePop 0.5s cubic-bezier(0.34,1.56,0.64,1)",
+                letterSpacing:"0.05em",
+              }}>
+                ざんねん
+              </div>
+            </div>
+          )}
           {/* 選択肢（2×2 大きなグリッド） */}
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.5vh 1.5vw", flex:1, minHeight:0 }}>
             {q.choices.map((c, i) => {
@@ -505,6 +528,7 @@ export default function QuizApp() {
                 </button>
               );
             })}
+          </div>
           </div>
 
           {/* 次の問題へボタン */}
@@ -544,19 +568,19 @@ export default function QuizApp() {
               {score}<span style={{ fontSize:24, color:"#C8A96E" }}>/{gameQuestions.length}</span>
             </p>
             <p style={{ color:"#FFE8A0", fontSize:15, margin:"8px 0 0", fontFamily:"'Zen Maru Gothic', sans-serif" }}>
-              {score===10?"🏆 かんぺき！全問正解で殿堂入りだよ！":score>=7?"🎉 すごい！砺波の歴史博士（れきしはかせ）にちかいよ！":score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
+              {score===10?"🏆 かんぺき！せいかいはぜんぶだよ！":score>=7?"🎉 すごい！れきしはかせにちかいよ！":score>=4?"💪 もうすこし！がんばろう！":"😅 いっしょに もっとまなぼうね！"}
             </p>
           </div>
           <a href={getCertUrl()} style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"14px 24px", background:"linear-gradient(135deg,#3B1F0A,#5C3317)", color:"#FFD700", border:"2px solid #FFD700", borderRadius:50, fontSize:15, fontWeight:700, textDecoration:"none", fontFamily:"'Zen Maru Gothic', sans-serif", letterSpacing:"0.05em", textAlign:"center", boxShadow:"0 0 20px rgba(255,215,0,0.3)", boxSizing:"border-box" }}>
-            📜 受講証書を見る
+            📜 受講証明書を見る
           </a>
           {score===10 && (
             <a href="/hall-of-fame" style={{ display:"block", width:"100%", maxWidth:300, marginBottom:12, padding:"10px 24px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", borderRadius:50, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"'Zen Maru Gothic', sans-serif", textAlign:"center", boxSizing:"border-box" }}>
-              🏛 でんどういりをみる
+              🏛 でんどうをみる
             </a>
           )}
           <button onClick={() => { reset(); setTimeout(() => setPhase("warp"),100); setTimeout(()=>setPhase("register"),2900); }} style={{ width:"100%", maxWidth:300, padding:"14px", background:"linear-gradient(135deg,#FFD700,#C8A96E)", color:"#3B1F0A", border:"none", borderRadius:50, fontSize:16, fontWeight:700, cursor:"pointer", fontFamily:"'Zen Maru Gothic', sans-serif", marginBottom:10 }}>
-            もう いちど チャレンジ！
+            もう いちど ちゃれんじ！
           </button>
           <button onClick={reset} style={{ color:"#C8A96E", background:"transparent", border:"1.5px solid #C8A96E", borderRadius:50, padding:"10px 24px", fontSize:13, cursor:"pointer" }}>
             タイトルに もどる
