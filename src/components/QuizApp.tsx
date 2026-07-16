@@ -425,137 +425,158 @@ export default function QuizApp() {
         </div>
       )}
 
-      {/* クイズ画面（大画面ワイドレイアウト） */}
+      {/* クイズ画面（大画面ワイドレイアウト・固定レイアウト） */}
       {phase === "quiz" && q && (
-        <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", padding:"1.5vh 2vw", boxSizing:"border-box" }}>
+        <div style={{
+          position:"relative", zIndex:1,
+          height:"100dvh", display:"flex", flexDirection:"column",
+          padding:"1vh 2vw", boxSizing:"border-box", overflow:"hidden"
+        }}>
 
-          {/* ⭕❌ 全画面ジャッジオーバーレイ */}
-          {judgeMark && (
+          {/* ⭕ 全画面ジャッジオーバーレイ（正解時のみ） */}
+          {judgeMark === "correct" && (
             <div style={{
               position:"fixed", inset:0, zIndex:200,
               display:"flex", alignItems:"center", justifyContent:"center",
-              background: judgeMark==="correct" ? "rgba(29,158,117,0.25)" : "rgba(0,0,0,0)",
+              background:"rgba(29,158,117,0.25)",
               animation:"judgeFade 1.5s ease forwards", pointerEvents:"none",
             }}>
-              <div style={{
-                fontWeight:900, lineHeight:1,
-                color: judgeMark==="correct" ? "#4DFFC0" : "#FFB347",
-                textShadow: judgeMark==="correct" ? "0 0 80px #1D9E75, 0 0 160px #4DFFC0" : "0 0 60px #FF8C00, 0 0 120px #FFB347",
+              <span style={{
+                fontSize:"min(55vw,55vh)", fontWeight:900, lineHeight:1,
+                color:"#4DFFC0",
+                textShadow:"0 0 80px #1D9E75, 0 0 160px #4DFFC0",
                 animation:"judgePop 0.5s cubic-bezier(0.34,1.56,0.64,1)",
-                fontFamily:"'Zen Maru Gothic', sans-serif",
-              }}>
-                <span style={{ fontSize:"min(55vw,55vh)" }}>
-                  {judgeMark==="correct" ? "⭕" : ""}
-                </span>
-              </div>
+              }}>⭕</span>
             </div>
           )}
 
-          {/* ヘッダー行：問題番号・カテゴリ・進捗・タイマー */}
-          <div style={{ display:"flex", alignItems:"center", gap:"1.5vw", marginBottom:"1.5vh" }}>
-            <div style={{ background:"linear-gradient(135deg,#3B1F0A,#5C3317)", border:"2px solid #C8A96E", borderRadius:16, padding:"1vh 1.5vw", textAlign:"center", flexShrink:0 }}>
-              <p style={{ margin:0, fontSize:"clamp(11px,1.2vw,18px)", color:"#C8A96E" }}>だい</p>
-              <p style={{ margin:0, fontSize:"clamp(24px,3.2vw,48px)", color:"#FFD700", fontWeight:700, fontFamily:"'Zen Maru Gothic', sans-serif", lineHeight:1.1 }}>{qIndex+1}<span style={{ fontSize:"clamp(12px,1.4vw,20px)", color:"#C8A96E" }}>もん</span></p>
+          {/* ヘッダー行（高さ固定：12vh） */}
+          <div style={{ height:"12vh", display:"flex", alignItems:"center", gap:"1.5vw", flexShrink:0 }}>
+            <div style={{ background:"linear-gradient(135deg,#3B1F0A,#5C3317)", border:"2px solid #C8A96E", borderRadius:16, padding:"0.5vh 1.5vw", textAlign:"center", flexShrink:0, height:"100%", display:"flex", flexDirection:"column", justifyContent:"center" }}>
+              <p style={{ margin:0, fontSize:"clamp(10px,1.1vw,16px)", color:"#C8A96E" }}>だい</p>
+              <p style={{ margin:0, fontSize:"clamp(22px,3vw,44px)", color:"#FFD700", fontWeight:700, lineHeight:1.1 }}>{qIndex+1}<span style={{ fontSize:"clamp(11px,1.3vw,18px)", color:"#C8A96E" }}>もん</span></p>
             </div>
-            <div style={{ background:"#FFD700", color:"#3B1F0A", fontSize:"clamp(14px,1.6vw,24px)", fontWeight:700, padding:"1vh 1.5vw", borderRadius:30, flexShrink:0 }}>{q.category}</div>
+            <div style={{ background:"#FFD700", color:"#3B1F0A", fontSize:"clamp(12px,1.4vw,22px)", fontWeight:700, padding:"0.8vh 1.5vw", borderRadius:30, flexShrink:0, whiteSpace:"nowrap", overflow:"hidden", maxWidth:"20vw", textOverflow:"ellipsis" }}>{q.category}</div>
             <div style={{ flex:1 }}>
-              <div style={{ height:"clamp(10px,1.4vh,16px)", background:"rgba(0,0,0,0.4)", borderRadius:8, overflow:"hidden", border:"1px solid #C8A96E" }}>
+              <div style={{ height:"clamp(8px,1.2vh,14px)", background:"rgba(0,0,0,0.4)", borderRadius:8, overflow:"hidden", border:"1px solid #C8A96E" }}>
                 <div style={{ height:"100%", background:"linear-gradient(90deg,#FFD700,#C8A96E)", width:`${((qIndex)/gameQuestions.length)*100}%`, transition:"width 0.5s ease", borderRadius:8 }} />
               </div>
-              <p style={{ margin:"0.5vh 0 0", fontSize:"clamp(11px,1.3vw,18px)", color:"#C8A96E", textAlign:"center" }}>せいかい {score}もん / {gameQuestions.length}もん</p>
+              <p style={{ margin:"0.3vh 0 0", fontSize:"clamp(10px,1.2vw,16px)", color:"#C8A96E", textAlign:"center" }}>せいかい {score}もん / {gameQuestions.length}もん</p>
             </div>
-            {/* タイマー */}
-            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:16, padding:"1vh 1.5vw", border:"2px solid #C8A96E", textAlign:"center", minWidth:"7vw", flexShrink:0 }}>
-              <p style={{ margin:0, fontSize:"clamp(10px,1.1vw,16px)", color:"#C8A96E" }}>のこり</p>
-              <p className={timeLeft <= 10 ? "timer-urgent" : ""} style={{ margin:0, fontSize:"clamp(28px,3.6vw,56px)", color:"#FFD700", fontWeight:700, fontFamily:"'Zen Maru Gothic', sans-serif", lineHeight:1.1 }}>{timeLeft}</p>
+            <div style={{ background:"rgba(0,0,0,0.4)", borderRadius:16, padding:"0.5vh 1.5vw", border:"2px solid #C8A96E", textAlign:"center", minWidth:"7vw", flexShrink:0, height:"100%", display:"flex", flexDirection:"column", justifyContent:"center" }}>
+              <p style={{ margin:0, fontSize:"clamp(9px,1vw,14px)", color:"#C8A96E" }}>のこり</p>
+              <p className={timeLeft <= 10 ? "timer-urgent" : ""} style={{ margin:0, fontSize:"clamp(26px,3.4vw,52px)", color:"#FFD700", fontWeight:700, lineHeight:1.1 }}>{timeLeft}</p>
             </div>
-            {userPhoto && <img src={userPhoto} style={{ width:"clamp(40px,4.5vw,70px)", height:"clamp(40px,4.5vw,70px)", borderRadius:"50%", objectFit:"cover", border:"3px solid #C8A96E", flexShrink:0 }} alt="you" />}
+            {userPhoto && <img src={userPhoto} style={{ height:"8vh", width:"8vh", borderRadius:"50%", objectFit:"cover", border:"3px solid #C8A96E", flexShrink:0 }} alt="you" />}
           </div>
 
-          {/* 問題文（大きく中央） */}
-          <div style={{ background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.95))", border:"3px solid #C8A96E", borderRadius:24, padding:"2.5vh 3vw", boxShadow:"0 6px 24px rgba(0,0,0,0.5)", animation:"fadeUp 0.4s ease", marginBottom:"1.5vh" }}>
-            <p style={{ margin:0, fontSize:"clamp(18px,2.6vw,40px)", color:"#FFE8A0", lineHeight:1.8, fontFamily:"'Zen Maru Gothic', sans-serif", fontWeight:600, textAlign:"center" }}>{q.question}</p>
+          {/* 問題文（高さ固定：22vh・文字サイズ自動調整） */}
+          <div style={{
+            height:"22vh", flexShrink:0,
+            background:"linear-gradient(135deg,rgba(59,31,10,0.95),rgba(92,51,23,0.95))",
+            border:"3px solid #C8A96E", borderRadius:20, padding:"1.5vh 3vw",
+            boxShadow:"0 6px 24px rgba(0,0,0,0.5)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            overflow:"hidden", marginBottom:"1vh",
+          }}>
+            <p style={{
+              margin:0,
+              fontSize:"clamp(14px,2.2vw,34px)",
+              color:"#FFE8A0", lineHeight:1.7,
+              fontWeight:600, textAlign:"center",
+              overflow:"hidden",
+              display:"-webkit-box",
+              WebkitLineClamp:4,
+              WebkitBoxOrient:"vertical",
+            }}>{q.question}</p>
           </div>
 
-          {/* ドーグちゃん + ヒント（横並び） */}
-          <div style={{ display:"flex", alignItems:"center", gap:"1.5vw", marginBottom:"1.5vh" }}>
-            <Dogu mood={mood} size={Math.min(130, 110)} />
-            <div style={{ flex:1, background:"rgba(200,169,110,0.15)", border:"2px solid #C8A96E", borderRadius:"20px 20px 20px 6px", padding:"1.5vh 2vw", animation:"slideIn 0.3s ease" }}>
-              <p style={{ margin:0, fontSize:"clamp(14px,1.8vw,28px)", color:"#FFE8A0", lineHeight:1.7, fontFamily:"'Zen Maru Gothic', sans-serif" }}>{doguMessage}</p>
+          {/* ドーグちゃん + ヒント（高さ固定：18vh） */}
+          <div style={{ height:"18vh", flexShrink:0, display:"flex", alignItems:"center", gap:"1.5vw", marginBottom:"1vh", overflow:"hidden" }}>
+            <div style={{ flexShrink:0, height:"100%", display:"flex", alignItems:"center" }}>
+              <Dogu mood={mood} size={Math.min(window?.innerHeight * 0.16 || 120, 140)} />
             </div>
-          </div>
-
-          {/* 選択肢エリア（ざんねんオーバーレイ付き） */}
-          <div style={{ position:"relative" }}>
-          {/* ざんねんオーバーレイ */}
-          {judgeMark === "wrong" && (
             <div style={{
-              position:"absolute", inset:0, zIndex:50,
-              display:"flex", alignItems:"center", justifyContent:"center",
-              borderRadius:16, pointerEvents:"none",
-              animation:"judgeFade 10s ease forwards",
+              flex:1, height:"100%",
+              background:"rgba(200,169,110,0.15)", border:"2px solid #C8A96E",
+              borderRadius:"20px 20px 20px 6px", padding:"1vh 2vw",
+              overflow:"hidden", display:"flex", alignItems:"center",
             }}>
-              <div style={{
-                fontSize:"clamp(60px,12vw,160px)",
-                fontWeight:900,
-                color:"#8899AA",
-                textShadow:"0 0 40px #445566, 0 0 80px #334455",
-                fontFamily:"'Zen Maru Gothic', sans-serif",
-                animation:"judgePop 0.5s cubic-bezier(0.34,1.56,0.64,1)",
-                letterSpacing:"0.05em",
-              }}>
-                ざんねん
-              </div>
+              <p style={{ margin:0, fontSize:"clamp(12px,1.6vw,26px)", color:"#FFE8A0", lineHeight:1.6, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical" }}>{doguMessage}</p>
             </div>
-          )}
-          {/* 選択肢（2×2 大きなグリッド） */}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.5vh 1.5vw", flex:1, minHeight:0 }}>
-            {q.choices.map((c, i) => {
-              let bg = `linear-gradient(135deg,${btnColors[i]},${btnColors[i]}CC)`;
-              let border = "3px solid rgba(255,255,255,0.2)";
-              let opacity = 1;
-              if (selected !== null) {
-                if (i === q.answer) {
-                  bg = "linear-gradient(135deg,#FFD700,#C8A96E)";
-                  border = "4px solid #FFD700";
-                }
-                else if (i === selected && i !== q.answer) { bg = "linear-gradient(135deg,#8A1A1A,#600)"; border = "3px solid #FF6B6B"; }
-                else { opacity = 0.3; }
-              }
-              return (
-                <button key={i} onClick={() => selected===null && handleAnswer(i)}
-                  style={{
-                    padding:"2vh 2vw", background:bg, border, borderRadius:20,
-                    color:"#FFF", cursor:selected===null?"pointer":"default",
-                    fontFamily:"'Zen Maru Gothic', sans-serif", textAlign:"left", lineHeight:1.5,
-                    boxShadow:"0 4px 14px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s",
-                    display:"flex", alignItems:"center", gap:"1.5vw",
-                  }}>
-                  <span style={{ fontSize:"clamp(28px,3.6vw,56px)", fontWeight:700, opacity:0.95, flexShrink:0, width:"clamp(36px,4.5vw,70px)", height:"clamp(36px,4.5vw,70px)", borderRadius:"50%", background:"rgba(255,255,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>{btnLabels[i]}</span>
-                  <span style={{ fontSize:"clamp(16px,2.2vw,34px)", fontWeight:700 }}>{c}</span>
-                </button>
-              );
-            })}
-          </div>
           </div>
 
-          {/* 次の問題へボタン */}
+          {/* 選択肢エリア（残り高さを使用） */}
+          <div style={{ flex:1, minHeight:0, position:"relative" }}>
+            {/* ざんねんオーバーレイ */}
+            {judgeMark === "wrong" && (
+              <div style={{
+                position:"absolute", inset:0, zIndex:50,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                borderRadius:16, pointerEvents:"none",
+                animation:"judgeFade 10s ease forwards",
+              }}>
+                <div style={{
+                  fontSize:"clamp(48px,10vw,140px)",
+                  fontWeight:900,
+                  color:"#8899AA",
+                  textShadow:"0 0 40px #445566, 0 0 80px #334455",
+                  animation:"judgePop 0.5s cubic-bezier(0.34,1.56,0.64,1)",
+                  letterSpacing:"0.05em",
+                }}>
+                  ざんねん
+                </div>
+              </div>
+            )}
+            {/* 選択肢グリッド */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gridTemplateRows:"1fr 1fr", gap:"1vh 1.5vw", height:"100%" }}>
+              {q.choices.map((c, i) => {
+                let bg = `linear-gradient(135deg,${btnColors[i]},${btnColors[i]}CC)`;
+                let border = "3px solid rgba(255,255,255,0.2)";
+                let opacity = 1;
+                if (selected !== null) {
+                  if (i === q.answer) {
+                    bg = "linear-gradient(135deg,#FFD700,#C8A96E)";
+                    border = "4px solid #FFD700";
+                  }
+                  else if (i === selected && i !== q.answer) { bg = "linear-gradient(135deg,#8A1A1A,#600)"; border = "3px solid #FF6B6B"; }
+                  else { opacity = 0.3; }
+                }
+                return (
+                  <button key={i} onClick={() => selected===null && handleAnswer(i)}
+                    style={{
+                      background:bg, border, borderRadius:16,
+                      color:"#FFF", cursor:selected===null?"pointer":"default",
+                      fontFamily:"'Zen Maru Gothic', sans-serif",
+                      boxShadow:"0 4px 14px rgba(0,0,0,0.4)", opacity, transition:"all 0.2s",
+                      display:"flex", alignItems:"center", gap:"1.5vw",
+                      padding:"1vh 2vw", overflow:"hidden",
+                    }}>
+                    <span style={{ fontSize:"clamp(22px,3vw,48px)", fontWeight:700, opacity:0.95, flexShrink:0, width:"clamp(32px,4vw,64px)", height:"clamp(32px,4vw,64px)", borderRadius:"50%", background:"rgba(255,255,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>{btnLabels[i]}</span>
+                    <span style={{ fontSize:"clamp(13px,1.8vw,30px)", fontWeight:700, lineHeight:1.4, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", textAlign:"left" }}>{c}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 次の問題へボタン（高さ固定：8vh） */}
           {selected !== null && (
-            <div style={{ padding:"8px 12px 16px", display:"flex", alignItems:"center", gap:12 }}>
+            <div style={{ height:"8vh", flexShrink:0, display:"flex", alignItems:"center", paddingTop:"0.5vh" }}>
               <button
                 onClick={() => goNextQuestion(selected === q.answer)}
                 style={{
-                  flex:1, padding:"clamp(10px,1.5vh,18px)",
+                  flex:1, height:"100%",
                   background:"linear-gradient(135deg,#FFD700,#C8A96E)",
                   color:"#3B1F0A", border:"none", borderRadius:50,
-                  fontSize:"clamp(14px,1.8vw,24px)", fontWeight:700,
+                  fontSize:"clamp(14px,1.8vw,28px)", fontWeight:700,
                   cursor:"pointer", fontFamily:"'Zen Maru Gothic', sans-serif",
                   letterSpacing:"0.05em",
                 }}
               >
                 つぎの もんだいへ →
                 {nextCountdown !== null && (
-                  <span style={{ marginLeft:8, fontSize:"0.8em", opacity:0.7 }}>（{nextCountdown}秒）</span>
+                  <span style={{ marginLeft:8, fontSize:"0.8em", opacity:0.7 }}>（{nextCountdown}びょう）</span>
                 )}
               </button>
             </div>
