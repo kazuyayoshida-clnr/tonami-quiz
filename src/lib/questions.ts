@@ -1,5 +1,6 @@
 import { Question } from "./types";
 
+// 正解は常にchoices[0]に格納。ゲーム開始時にシャッフルされます。
 export const allQuestions: Question[] = [
   {
     category: "松原(まつばら)遺跡をたんけん",
@@ -10,7 +11,7 @@ export const allQuestions: Question[] = [
       "スカイツリー",
       "ピラミッド",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波市の埋蔵文化財センターの主役！1万年も前の人が住んでいた場所。展示室で本物の土器を見てみよう。",
     hint: "「まつ」+「ばら」がつくよ",
   },
@@ -23,7 +24,7 @@ export const allQuestions: Question[] = [
       "令和",
       "昭和",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "いちばん古いやきもの「縄文土器」が出てくる時代。今からおよそ5000年前！",
     hint: "土器に「なわ」のもよう",
   },
@@ -36,7 +37,7 @@ export const allQuestions: Question[] = [
       "令和5年",
       "昭和60年",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "鉄道の工事で土をほっていたら、ぐうぜん土器が出てきた！",
     hint: "100年より前",
   },
@@ -49,7 +50,7 @@ export const allQuestions: Question[] = [
       "プールを作る工事",
       "ダムを作る工事",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波鉄道の線路をしくため土をほって、運(はこ)んだら出てきた。",
     hint: "でんしゃが走る道",
   },
@@ -62,7 +63,7 @@ export const allQuestions: Question[] = [
       "ホテル",
       "ログハウス",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "地面を50cm〜1mほって、まんなかに火をたいた家。展示の復元(ふくげん)で中に入りたくなる！",
     hint: "「たて」に「あな」",
   },
@@ -75,7 +76,7 @@ export const allQuestions: Question[] = [
       "100メートル",
       "2メートル",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "教室より大きい！何人で住んでいたのかな？想ぞうしてみよう。",
     hint: "教室くらいの長さ",
   },
@@ -88,7 +89,7 @@ export const allQuestions: Question[] = [
       "100けん",
       "1000けん",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小さなむらが13けん。ごきんじょさんが見える！",
     hint: "13けん",
   },
@@ -101,7 +102,7 @@ export const allQuestions: Question[] = [
       "プール",
       "おかま",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "石をならべて、まきをくべて、ごはんを煮(に)たよ。",
     hint: "火をたく場所",
   },
@@ -114,7 +115,7 @@ export const allQuestions: Question[] = [
       "ふじ山のてっぺん",
       "砂(すな)はま",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "庄川がはこんだ土が積もった高い場所。こうずいが来にくくて安全！",
     hint: "ちょっと高い土地",
   },
@@ -127,7 +128,7 @@ export const allQuestions: Question[] = [
       "2000メートル",
       "10メートル",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "標高(ひょうこう)103m。ながめがよかったね！",
     hint: "100メートルくらい",
   },
@@ -140,7 +141,7 @@ export const allQuestions: Question[] = [
       "電池",
       "フラスコ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "あなとつばがついた、なぞの土器！太鼓(たいこ)？お酒入れ？展示で本物を見てなぞをとこう！",
     hint: "あな+つばつき",
   },
@@ -153,7 +154,7 @@ export const allQuestions: Question[] = [
       "アクセサリー",
       "おみくじ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "庄川で魚をとった証拠(しょうこ)！てのひらサイズで、両側にみぞがある。",
     hint: "あみ+おもし",
   },
@@ -166,7 +167,7 @@ export const allQuestions: Question[] = [
       "スプーン",
       "ガラス玉",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小さくてとがった石。けものや魚をとるのに使ったよ。",
     hint: "「や」のさき",
   },
@@ -179,7 +180,7 @@ export const allQuestions: Question[] = [
       "スマホ式",
       "大阪式",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "北陸で5000年前にはやった土器。砺波の主役！展示で同じ仲間をさがしてみよう。",
     hint: "「かみやまだ」+「てんじんやま」",
   },
@@ -192,7 +193,7 @@ export const allQuestions: Question[] = [
       "ハワイのまねっこ",
       "中国のまねっこ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "5000年前から新潟と砺波で「行き来」があった証拠！",
     hint: "となりの県のまねっこ",
   },
@@ -205,7 +206,7 @@ export const allQuestions: Question[] = [
       "クリスタル",
       "つるつる",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "うえに「もえ上がるかざり」がついた土器。新潟方面の代表選手！",
     hint: "ほのお+のかざり",
   },
@@ -218,7 +219,7 @@ export const allQuestions: Question[] = [
       "おさら",
       "コップ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "上がギザギザで、かんむりみたい！火焔型とセットで作られた、新潟系のなかま。",
     hint: "かんむり+型",
   },
@@ -231,7 +232,7 @@ export const allQuestions: Question[] = [
       "ホットケーキ式",
       "つばき式",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "東北地方で生まれた土器の仲間。砺波まで歩いてきた人がいた証拠！",
     hint: "「だいぎ」式",
   },
@@ -244,7 +245,7 @@ export const allQuestions: Question[] = [
       "おもちゃ",
       "おもし",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "くるみやどんぐりをトントンとつぶした石。手にとると意外と重い！",
     hint: "「すり」+いし",
   },
@@ -257,7 +258,7 @@ export const allQuestions: Question[] = [
       "おふろのふた",
       "いす",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "磨石とセットで使う。今のすり鉢のごせんぞさま！",
     hint: "「いし」+さら",
   },
@@ -270,7 +271,7 @@ export const allQuestions: Question[] = [
       "金属(きんぞく)バット",
       "つえ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "お祭りやいのりに使った、なぞの棒！長くてつるつる。",
     hint: "石の+ぼう",
   },
@@ -283,7 +284,7 @@ export const allQuestions: Question[] = [
       "ロケットの発射台",
       "水たまり",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "お墓？保存(ほぞん)穴？なぞ多い「あなあと」だよ。",
     hint: "土の+あな",
   },
@@ -296,7 +297,7 @@ export const allQuestions: Question[] = [
       "50年",
       "10年",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "1913年発見だから、もう100年以上たっている！長く調査されてきた遺跡。",
     hint: "100年より長く",
   },
@@ -309,7 +310,7 @@ export const allQuestions: Question[] = [
       "令和時代",
       "江戸時代",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "中学生も砺波の歴史をほり起こす仲間。すごいね！",
     hint: "じょうもん時代",
   },
@@ -322,7 +323,7 @@ export const allQuestions: Question[] = [
       "江戸時代",
       "昭和時代",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "忽然(こつぜん)と途絶(とだ)える、なぞの集落。展示で「縄文中期」をさがしてみよう。",
     hint: "縄文の+中ごろ",
   },
@@ -335,7 +336,7 @@ export const allQuestions: Question[] = [
       "虹(にじ)色",
       "真っ青",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "土をやくと茶色や赤茶になる。鉄分の力！",
     hint: "ねん土を焼くと出る色",
   },
@@ -348,7 +349,7 @@ export const allQuestions: Question[] = [
       "花のもよう",
       "ほしのもよう",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "なわをころがしてつけたもよう。だから「縄文」！",
     hint: "「なわ」のもよう",
   },
@@ -361,7 +362,7 @@ export const allQuestions: Question[] = [
       "ハート",
       "ストライプ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "いのちのつながりや生まれかわりを表すとも言われるなぞもよう！",
     hint: "ぐるぐる",
   },
@@ -374,7 +375,7 @@ export const allQuestions: Question[] = [
       "紙でおる",
       "金属(きんぞく)をとかす",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "野焼(のや)きでカチカチに固める！君もチャレンジしてみたくない？",
     hint: "ねん土+たき火",
   },
@@ -387,7 +388,7 @@ export const allQuestions: Question[] = [
       "コップ",
       "ジョッキ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "煮たき用。家族で食事をシェアした！",
     hint: "ふかい+はち",
   },
@@ -400,7 +401,7 @@ export const allQuestions: Question[] = [
       "あぶら",
       "水あめ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小石をまぜると、焼いてもこわれにくい！",
     hint: "石+すな",
   },
@@ -413,7 +414,7 @@ export const allQuestions: Question[] = [
       "チョコレート",
       "しょうゆ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "本当に食べものを煮ていた証拠(しょうこ)。展示でじっと見てみよう！",
     hint: "おこげ",
   },
@@ -426,7 +427,7 @@ export const allQuestions: Question[] = [
       "プリント",
       "しっくい",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "ねん土を「ひもじょうたい」にしてはりつけたもり上がりかざり！",
     hint: "もり上がりせん",
   },
@@ -439,7 +440,7 @@ export const allQuestions: Question[] = [
       "プラスチックっぽい",
       "虹(にじ)色がきれい",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "晩期はおしゃれな細(ほそ)いもようの土器が多い。中期との違いを発見しよう！",
     hint: "ほそい+こまかい",
   },
@@ -452,7 +453,7 @@ export const allQuestions: Question[] = [
       "ぬいぐるみ",
       "お雛(ひな)さま",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "土でできた人がた。安産などのねがいを込めた！",
     hint: "土+人がた",
   },
@@ -465,7 +466,7 @@ export const allQuestions: Question[] = [
       "金",
       "紙",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "石棒はじゃりじゃりした石をけずって作る。とがったかたちが特徴！",
     hint: "石",
   },
@@ -478,7 +479,7 @@ export const allQuestions: Question[] = [
       "ふで",
       "ストロー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "ヘラやたけぐしでけずったり、つついたりしてもようをつくる！",
     hint: "へら",
   },
@@ -491,7 +492,7 @@ export const allQuestions: Question[] = [
       "しおをかけた",
       "ヤスリでけずった",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "焼く前に石や砂をまぜたから、ざらっとする。",
     hint: "石+砂入り",
   },
@@ -504,7 +505,7 @@ export const allQuestions: Question[] = [
       "バナナ",
       "パイナップル",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "森でひろえるかたい実。すりつぶして、おだんごにもした！",
     hint: "かたい+森のみ",
   },
@@ -517,7 +518,7 @@ export const allQuestions: Question[] = [
       "乗りもの",
       "かびん",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "煮たきや保存など、毎日のキッチン道具！",
     hint: "ごはん+ためる",
   },
@@ -530,7 +531,7 @@ export const allQuestions: Question[] = [
       "5000℃",
       "100℃",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "野焼きでもしっかり固まる。1000℃以下とおぼえよう！",
     hint: "あつめのオーブン",
   },
@@ -543,7 +544,7 @@ export const allQuestions: Question[] = [
       "江戸時代",
       "昭和時代",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "中期の後ろのほうに流行(りゅうこう)した土器の様式。展示でくらべてみてね！",
     hint: "縄文中期+うしろ",
   },
@@ -556,7 +557,7 @@ export const allQuestions: Question[] = [
       "ちょこチップ",
       "あめ玉",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "焼く前にまぜた石や砂が見えている。むかしの人の工夫が指で感じられる！",
     hint: "土+つぶ",
   },
@@ -569,7 +570,7 @@ export const allQuestions: Question[] = [
       "おりがみ",
       "チラシ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小さなかけらの一つ一つにも歴史がある。手のひらにのせてみたくなる！",
     hint: "土器+かけら",
   },
@@ -582,7 +583,7 @@ export const allQuestions: Question[] = [
       "パン",
       "おもち",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "お米作りはまだはじまっていない。森と川のめぐみで生きていた！",
     hint: "木の実+魚",
   },
@@ -595,7 +596,7 @@ export const allQuestions: Question[] = [
       "じゃんけん",
       "くじびき",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "研究した人が分類(ぶんるい)したから、展示室で順番に見られるよ。",
     hint: "くらべて+分類",
   },
@@ -608,7 +609,7 @@ export const allQuestions: Question[] = [
       "色が金色か銀色か",
       "形が真四角か丸か",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "上下の段(だん)にならぶ土器を見くらべると、ちがいがすぐわかる！",
     hint: "あつい+うすい",
   },
@@ -621,7 +622,7 @@ export const allQuestions: Question[] = [
       "スプーン",
       "ピンセット",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "おの。木をたおすのに大かつやく！",
     hint: "石の+おの",
   },
@@ -634,7 +635,7 @@ export const allQuestions: Question[] = [
       "プラスチックおの",
       "紙のおの",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "トン!と石をたたいて作るおの。展示でかけらのあとを見つけよう！",
     hint: "「打ち」+作る",
   },
@@ -647,7 +648,7 @@ export const allQuestions: Question[] = [
       "紙のおの",
       "ガラスのおの",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "何時間もみがいてつるつる。さわるとつめたくて気持ちいい！",
     hint: "「みがき」+作る",
   },
@@ -660,7 +661,7 @@ export const allQuestions: Question[] = [
       "ペンダント",
       "おまもり",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小さくてするどい！指の半分くらいの大きさ。手にとってみたいね。",
     hint: "「や」のさき",
   },
@@ -673,7 +674,7 @@ export const allQuestions: Question[] = [
       "えんぴつのしん",
       "くぎ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "石+鏃(やじり)で「せきぞく」と読む。",
     hint: "「いし」+「やじり」",
   },
@@ -686,7 +687,7 @@ export const allQuestions: Question[] = [
       "スマホ",
       "ハンマー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "やじりよりひとまわり大きい。展示でくらべてみよう！",
     hint: "「や」じりの大きいの",
   },
@@ -699,7 +700,7 @@ export const allQuestions: Question[] = [
       "コップ",
       "えんぴつ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "両手でぐるぐる回すと、木の実がパウダーに！",
     hint: "「すり」+いし",
   },
@@ -712,7 +713,7 @@ export const allQuestions: Question[] = [
       "ぬのきれ",
       "おぼん",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "トレイのようにかたく平ら。実をのせて磨石で「ごりごり」！",
     hint: "「いし」+さら",
   },
@@ -725,7 +726,7 @@ export const allQuestions: Question[] = [
       "かなづち",
       "ピンセット",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "てのひらサイズで、両側にみぞ。あみにくくりつけた！",
     hint: "「あみ」+おもし",
   },
@@ -738,7 +739,7 @@ export const allQuestions: Question[] = [
       "モノレールを走らせていた",
       "オリンピックをしていた",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "庄川はむかしから魚いっぱい！",
     hint: "川で+魚",
   },
@@ -751,7 +752,7 @@ export const allQuestions: Question[] = [
       "ハニカム",
       "しろみそ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "くろくてぴかぴか！するどく切れて、やじりにぴったり！",
     hint: "くろ+ぴかぴか",
   },
@@ -764,7 +765,7 @@ export const allQuestions: Question[] = [
       "お米をはかる",
       "じゃんけん",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "森の木をきって、家の柱にした。",
     hint: "木を+きる",
   },
@@ -777,7 +778,7 @@ export const allQuestions: Question[] = [
       "からけずって",
       "太陽でとかしたから",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "石どうしを「コンッ」とぶつけて、するどい面を作る！",
     hint: "くだいて+するどく",
   },
@@ -790,7 +791,7 @@ export const allQuestions: Question[] = [
       "プラスチックでくるんだ",
       "ペンキでけずった",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "何時間もかけてみがく根気のしごと！",
     hint: "みがいた",
   },
@@ -803,7 +804,7 @@ export const allQuestions: Question[] = [
       "食べる",
       "のぞきあな",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "アクセサリーや、首にかけるペンダントとして使った！",
     hint: "ひもをとおす",
   },
@@ -816,7 +817,7 @@ export const allQuestions: Question[] = [
       "きりん",
       "かば",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "鹿(しか)のつのは丈夫で道具に！砺波の山にもいた。",
     hint: "のはらの+どうぶつ",
   },
@@ -829,7 +830,7 @@ export const allQuestions: Question[] = [
       "ぜんぶアメリカせい",
       "ぜんぶ江戸時代",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "つかい方ごとに形がちがう！見くらべて発見しよう。",
     hint: "つかい方+ちがい",
   },
@@ -842,7 +843,7 @@ export const allQuestions: Question[] = [
       "金属",
       "木",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "パリッと割れて、するどくなる石を選んだ。",
     hint: "かたくて+われやすい",
   },
@@ -855,7 +856,7 @@ export const allQuestions: Question[] = [
       "令和時代",
       "江戸時代",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "お米作りがはじまった時代！",
     hint: "「やよい」",
   },
@@ -868,7 +869,7 @@ export const allQuestions: Question[] = [
       "プラスチック",
       "ペラペラの紙",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "うすく作って、運びやすくした！",
     hint: "うすい+すっきり",
   },
@@ -881,7 +882,7 @@ export const allQuestions: Question[] = [
       "アスファルト",
       "プール",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "えらい人のお墓を山のように大きく作った！",
     hint: "山みたいなお墓",
   },
@@ -894,7 +895,7 @@ export const allQuestions: Question[] = [
       "紙",
       "ガラス",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "低い温度で焼くから、赤茶でやわらかい。",
     hint: "あかちゃ+やわらか",
   },
@@ -907,7 +908,7 @@ export const allQuestions: Question[] = [
       "スポンジ",
       "紙",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "高い温度で焼くから青灰色(あおはいいろ)。さわるとひんやり！",
     hint: "あお+はいいろ+うつわ",
   },
@@ -920,7 +921,7 @@ export const allQuestions: Question[] = [
       "アマゾンから",
       "オランダから",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "5世紀前半に大陸から伝わった。",
     hint: "海をわたって+大陸",
   },
@@ -933,7 +934,7 @@ export const allQuestions: Question[] = [
       "レーザー",
       "ハンマー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "くるくる回す台「ろくろ」で、きれいな丸形が作れる！",
     hint: "くるくる回す台",
   },
@@ -946,7 +947,7 @@ export const allQuestions: Question[] = [
       "織田信長",
       "坂本龍馬",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "万葉集(まんようしゅう)で有名な歌人(かじん)！砺波で歌をよんだ。",
     hint: "「やかもち」さん",
   },
@@ -959,7 +960,7 @@ export const allQuestions: Question[] = [
       "清水寺",
       "出雲大社",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波市池原(いけはら)の神社。万葉の歌の世界！",
     hint: "「うばら」神社",
   },
@@ -972,7 +973,7 @@ export const allQuestions: Question[] = [
       "紙",
       "金ぱく",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "木に墨(すみ)で字を書いた荷ふだ。本物の「越中國利波郡」と書かれたものがある！",
     hint: "木の+ふだ",
   },
@@ -985,7 +986,7 @@ export const allQuestions: Question[] = [
       "「カナダ国」",
       "「北極」",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "「越中國(えっちゅうのくに)利波郡(となみぐん)」と書かれた木簡が本当に見つかった！",
     hint: "「としなみ」と「えっちゅう」",
   },
@@ -998,7 +999,7 @@ export const allQuestions: Question[] = [
       "おもちゃ",
       "プレゼント",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "お米を税として都へ運ぶ大しごと！",
     hint: "ぜいきん",
   },
@@ -1011,7 +1012,7 @@ export const allQuestions: Question[] = [
       "100日",
       "1年",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "重い荷物を持って、てくてく17日。「延喜式(えんぎしき)」に書かれている。",
     hint: "17日",
   },
@@ -1024,7 +1025,7 @@ export const allQuestions: Question[] = [
       "アスファルト畑",
       "ロケット畑",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "奈良の大仏で有名な東大寺の畑が砺波にあった！",
     hint: "「とうだいじ」+畑",
   },
@@ -1037,7 +1038,7 @@ export const allQuestions: Question[] = [
       "エジソン",
       "聖徳太子",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波の有力者！大仏づくりに大きな貢献(こうけん)！",
     hint: "「としなみのおみ」",
   },
@@ -1050,7 +1051,7 @@ export const allQuestions: Question[] = [
       "真っ白",
       "真っ黒",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "高温で焼いた青灰色。土師器とくらべてみよう！",
     hint: "あお+はい色",
   },
@@ -1063,7 +1064,7 @@ export const allQuestions: Question[] = [
       "おふろ",
       "ろうそく立て",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "大きな壺はキッチンの保存庫(こ)！",
     hint: "保存用",
   },
@@ -1076,7 +1077,7 @@ export const allQuestions: Question[] = [
       "虹色",
       "真っ青",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "須恵器とちがって、赤茶でやわらかい。",
     hint: "あかちゃ",
   },
@@ -1089,7 +1090,7 @@ export const allQuestions: Question[] = [
       "「カナダ」",
       "「江戸」",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "古い書物には「利波」「礪波」とある。今と同じ「となみ」！",
     hint: "となみ",
   },
@@ -1102,7 +1103,7 @@ export const allQuestions: Question[] = [
       "秋葉原",
       "ハリウッド",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "古代の須恵器(すえき)を焼いていた窯あとが集中している場所！",
     hint: "「せんだんの」+窯",
   },
@@ -1115,7 +1116,7 @@ export const allQuestions: Question[] = [
       "ピザ",
       "パン",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "あおっぽい灰色の須恵器(すえき)！展示で本物にさわってみよう。",
     hint: "あお+はい色",
   },
@@ -1128,7 +1129,7 @@ export const allQuestions: Question[] = [
       "昭和",
       "令和",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "8世紀前半、奈良時代のはじめのころに砺波でも始まった。",
     hint: "奈良時代のはじめ",
   },
@@ -1141,7 +1142,7 @@ export const allQuestions: Question[] = [
       "世界窯跡",
       "江戸窯跡",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "福山窯跡は栴檀野を代表する窯あと！",
     hint: "「ふくやま」",
   },
@@ -1154,7 +1155,7 @@ export const allQuestions: Question[] = [
       "ボール形",
       "ピラミッド形",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "山のしゃめんを利用した「あなぐら型の窯」！",
     hint: "ななめのトンネル",
   },
@@ -1167,7 +1168,7 @@ export const allQuestions: Question[] = [
       "10℃",
       "100℃",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "1000℃以上！カチカチで青い須恵器ができる！",
     hint: "1000℃より高い",
   },
@@ -1180,7 +1181,7 @@ export const allQuestions: Question[] = [
       "モンゴル",
       "南極",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "都までしっかりと運ばれていた。砺波はものづくりのまち！",
     hint: "都(みやこ)",
   },
@@ -1193,7 +1194,7 @@ export const allQuestions: Question[] = [
       "おみくじ",
       "おまもり",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "税としておさめた。",
     hint: "ぜいきん",
   },
@@ -1206,7 +1207,7 @@ export const allQuestions: Question[] = [
       "お金",
       "スマホ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "焼きそこねたり、われたかけらが「物が語る」発見の手がかりに！",
     hint: "須恵器のかけら",
   },
@@ -1219,7 +1220,7 @@ export const allQuestions: Question[] = [
       "おもちゃ",
       "花びん",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "毎日の食事や、税のはこにも使った！",
     hint: "水・米",
   },
@@ -1232,7 +1233,7 @@ export const allQuestions: Question[] = [
       "砺波(となみ)が海(うみ)だったこと",
       "ぜんぶ砂(すな)ばくだったこと",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波は古代のものづくり拠点(きょてん)！",
     hint: "ものづくり+まち",
   },
@@ -1245,7 +1246,7 @@ export const allQuestions: Question[] = [
       "令和",
       "江戸時代",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "奈良時代のはじめ。砺波は古代から先進地(せんしんち)！",
     hint: "8世紀+前半",
   },
@@ -1258,7 +1259,7 @@ export const allQuestions: Question[] = [
       "パソコン",
       "ロボット",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "飲食・たくわえの形が多い。展示で並べてみよう。",
     hint: "坏+壺+甕",
   },
@@ -1271,7 +1272,7 @@ export const allQuestions: Question[] = [
       "タカラさがしの地図",
       "スマホアプリ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "土の中のかけらが大事なヒント！",
     hint: "かけら",
   },
@@ -1284,7 +1285,7 @@ export const allQuestions: Question[] = [
       "スカイツリー",
       "ハリウッド",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "芹谷野(せりだにの)段丘下の宮森で発見！",
     hint: "「みやもり」+「はいじ」",
   },
@@ -1297,7 +1298,7 @@ export const allQuestions: Question[] = [
       "アンテナ",
       "えんぴつ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "密教のおいのり道具！両側がとがった「金の棒」みたい！",
     hint: "「どっこ」+しょ",
   },
@@ -1310,7 +1311,7 @@ export const allQuestions: Question[] = [
       "水でっぽう",
       "スプレー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "細い口からお水をぱしゃっとふりまく、密教のおもてなし！",
     hint: "「しゃすい」+き",
   },
@@ -1323,7 +1324,7 @@ export const allQuestions: Question[] = [
       "クリーム",
       "お米いれ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "いいにおいの粉を入れる、こまかい仕事の小さなうつわ！",
     hint: "「ずこう」+き",
   },
@@ -1336,7 +1337,7 @@ export const allQuestions: Question[] = [
       "せんたくおけ",
       "かさおけ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "仏(ほとけ)さまへの「お水のおふだ」！",
     hint: "「あか」おけ",
   },
@@ -1349,7 +1350,7 @@ export const allQuestions: Question[] = [
       "フライパン",
       "じょうろ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "「ひさげる」=「手にさげる」とってつきの容器。展示で形を見てみよう！",
     hint: "「ひさげ」",
   },
@@ -1362,7 +1363,7 @@ export const allQuestions: Question[] = [
       "100こ",
       "2こ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "6種類9点！砺波の中世の祈(いの)りのすがた。",
     hint: "9つ",
   },
@@ -1375,7 +1376,7 @@ export const allQuestions: Question[] = [
       "昭和",
       "令和",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "およそ500〜600年前!室町時代の砺波の信仰(しんこう)！",
     hint: "500〜600年前",
   },
@@ -1388,7 +1389,7 @@ export const allQuestions: Question[] = [
       "プラスチック",
       "ガラスのうつわ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "お皿にあぶらを入れて、ともしびに！中に「すす」のあとがある。",
     hint: "あかり+の+さら",
   },
@@ -1401,7 +1402,7 @@ export const allQuestions: Question[] = [
       "しょうゆ",
       "チョコ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "夜のあかりに使ったしるし。本当にともしびに使われていた証拠！",
     hint: "あかり+の+すす",
   },
@@ -1414,7 +1415,7 @@ export const allQuestions: Question[] = [
       "遊園地",
       "プール",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "京都の徳大寺(とくだいじ)家の畑。京都と砺波がつながっていた！",
     hint: "「はんにゃの」+しょう",
   },
@@ -1427,7 +1428,7 @@ export const allQuestions: Question[] = [
       "結婚した",
       "旅(たび)に出た",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波の歴史の悲(かな)しいできごと。今も親王塚(しんのうづか)が残っている。",
     hint: "おそろしい事件",
   },
@@ -1440,7 +1441,7 @@ export const allQuestions: Question[] = [
       "スカイツリー",
       "ピラミッド",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波市安川の薬勝寺(やくしょうじ)境内(けいだい)にある。",
     hint: "「しんのう」塚",
   },
@@ -1453,7 +1454,7 @@ export const allQuestions: Question[] = [
       "ロケット台",
       "スカイツリー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "おとも9人もろともの悲しいできごとの記念碑(ねんひ)。",
     hint: "9人+塚",
   },
@@ -1466,7 +1467,7 @@ export const allQuestions: Question[] = [
       "姫路城(ひめじじょう)",
       "江戸城",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波の山城(やまじろ)の王様！国が「大事」と認めた。",
     hint: "「ますやま」+じょう",
   },
@@ -1479,7 +1480,7 @@ export const allQuestions: Question[] = [
       "じょうもん時代",
       "昭和",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "だいたい600年前くらいから400年前まで使われたお城！",
     hint: "600〜400年前",
   },
@@ -1492,7 +1493,7 @@ export const allQuestions: Question[] = [
       "おてら",
       "橋(はし)",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "越中の山城代表選手の一つ！",
     hint: "「やま」+じろ",
   },
@@ -1505,7 +1506,7 @@ export const allQuestions: Question[] = [
       "しなの川",
       "千曲川",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "和田川が城のまわりを曲がる、天然(てんねん)の堀(ほり)！",
     hint: "「わだ」川",
   },
@@ -1518,7 +1519,7 @@ export const allQuestions: Question[] = [
       "徳川氏",
       "平氏",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "越中の有力武家(ぶけ)、神保氏！",
     hint: "「じんぼう」",
   },
@@ -1531,7 +1532,7 @@ export const allQuestions: Question[] = [
       "プール",
       "アスファルト",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "山に「ほり」を入れて敵の動きを止める！自分の目で歩いて見られる。",
     hint: "山に+ほった+みぞ",
   },
@@ -1544,7 +1545,7 @@ export const allQuestions: Question[] = [
       "プール",
       "駐車場(ちゅうしゃじょう)",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "曲輪はお城の「ステージ」。何個も連なる！",
     hint: "「くるわ」",
   },
@@ -1557,7 +1558,7 @@ export const allQuestions: Question[] = [
       "スマホ",
       "ゴム",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "日本中・中国から焼物があつまる「貿易タウン」！",
     hint: "いっぱい",
   },
@@ -1570,7 +1571,7 @@ export const allQuestions: Question[] = [
       "レゴ",
       "プラスチック",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "中国の青磁が、砺波で見つかる！",
     hint: "あお+うすみどり",
   },
@@ -1583,7 +1584,7 @@ export const allQuestions: Question[] = [
       "紙",
       "ガラス",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "白地に青いもようの中国の名品。砺波でも出土！",
     hint: "しろ+あお",
   },
@@ -1596,7 +1597,7 @@ export const allQuestions: Question[] = [
       "紙",
       "シルク",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "つるんと真っ白！光が反射(はんしゃ)する。",
     hint: "まっ+しろ",
   },
@@ -1609,7 +1610,7 @@ export const allQuestions: Question[] = [
       "紙",
       "ガラス",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "おとなりの能登の焼物。大つぼでお米を保存(ほぞん)！",
     hint: "「すず」+やき",
   },
@@ -1622,7 +1623,7 @@ export const allQuestions: Question[] = [
       "ガラスびん",
       "紙ねんど",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "おとなりの福井から来たすり鉢！日本の六古窯(ろっこよう)の一つ。",
     hint: "「えちぜん」+やき",
   },
@@ -1635,7 +1636,7 @@ export const allQuestions: Question[] = [
       "スパゲッティ",
       "ジュースをのむ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "中世からお茶文化が砺波にもあった証拠！",
     hint: "お茶+わん",
   },
@@ -1648,7 +1649,7 @@ export const allQuestions: Question[] = [
       "紙",
       "虹色のグラデーション",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "亀山城(かめやまじょう)跡からも見つかる。「染付」がきれい！",
     hint: "「いまり」+「そめつけ」",
   },
@@ -1661,7 +1662,7 @@ export const allQuestions: Question[] = [
       "アメリカの城",
       "スカイツリー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "鬼ヶ城(おにがじょう)とも呼ばれる山城！",
     hint: "「やすかわ」+じょう",
   },
@@ -1674,7 +1675,7 @@ export const allQuestions: Question[] = [
       "スカイハウス",
       "ヒーロー城",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "中世から「鬼ヶ城」と呼ばれた、ふしぎな名前のお城！",
     hint: "おに+が+じょう",
   },
@@ -1687,7 +1688,7 @@ export const allQuestions: Question[] = [
       "2000メートル",
       "50センチ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "砺波市内で最も高い場所のお城！",
     hint: "190メートル",
   },
@@ -1700,7 +1701,7 @@ export const allQuestions: Question[] = [
       "アメリカ",
       "北海道",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "亀山城も増山城と同じ栴檀野地区！山城めぐりにぴったり。",
     hint: "「せんだんの」",
   },
@@ -1713,7 +1714,7 @@ export const allQuestions: Question[] = [
       "ロシア",
       "ハワイ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "江戸時代の名品、伊万里！亀山城からも出てくる。",
     hint: "「いまり」",
   },
@@ -1726,7 +1727,7 @@ export const allQuestions: Question[] = [
       "金づち",
       "ハンマー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "出土品をきずつけないように、しゃっしゃっとはらう！",
     hint: "「ふで」みたいな",
   },
@@ -1739,7 +1740,7 @@ export const allQuestions: Question[] = [
       "ピンセット",
       "スプーン",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "土をうすくはがして遺物を出す。コツがいる職人わざ！",
     hint: "小さい+鎌",
   },
@@ -1752,7 +1753,7 @@ export const allQuestions: Question[] = [
       "モップ",
       "ふきん",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小型のシャベルで土をていねいに！",
     hint: "小さい+シャベル",
   },
@@ -1765,7 +1766,7 @@ export const allQuestions: Question[] = [
       "食べる",
       "売る",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "情報が消えると価値が下がる！記録が大事。",
     hint: "場所+ふかさ+記録",
   },
@@ -1778,7 +1779,7 @@ export const allQuestions: Question[] = [
       "ペンキでぬる",
       "ふくろにつめる",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "やさしく水洗い！ふきんでやわらかくふく。",
     hint: "水+あらう",
   },
@@ -1791,7 +1792,7 @@ export const allQuestions: Question[] = [
       "音楽の演奏(えんそう)",
       "ガラスふき",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "パズルで土器を「いきかえらせる」しごと！",
     hint: "パズル",
   },
@@ -1804,7 +1805,7 @@ export const allQuestions: Question[] = [
       "チラシ作り",
       "お習字(しゅうじ)",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "ていねいに測(はか)って図を描く！研究の基礎(きそ)。",
     hint: "「じっそく」",
   },
@@ -1817,7 +1818,7 @@ export const allQuestions: Question[] = [
       "DVD",
       "しゃしんしゅう",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "研究の宝物！図書館でも読める。",
     hint: "ほうこく+書",
   },
@@ -1830,7 +1831,7 @@ export const allQuestions: Question[] = [
       "UFO",
       "アスファルト",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "くろ・茶・黄など、色のちがいで「むかし何があったか」がわかる！",
     hint: "土の+色のちがい",
   },
@@ -1843,7 +1844,7 @@ export const allQuestions: Question[] = [
       "明日の天気",
       "流行のおもちゃ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "下に古い時代、上に新しい時代。土は「時間のページ」！",
     hint: "「下→古い+上→新しい」",
   },
@@ -1856,7 +1857,7 @@ export const allQuestions: Question[] = [
       "世界地図",
       "海の地図",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "市の地図に「ここに遺跡あり!」と書いてある！",
     hint: "包蔵+地",
   },
@@ -1869,7 +1870,7 @@ export const allQuestions: Question[] = [
       "プリンター",
       "スマホ",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "距離(きょり)と角度(かくど)を一瞬(いっしゅん)ではかる、考古学(こうこがく)の新兵器(しんへいき)！",
     hint: "はかる+きかい",
   },
@@ -1882,7 +1883,7 @@ export const allQuestions: Question[] = [
       "次の流行",
       "おまもりの効果(こうか)",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "小さなたねでも、むかしの食べものがわかるすごいヒント！",
     hint: "食べ物のヒント",
   },
@@ -1895,7 +1896,7 @@ export const allQuestions: Question[] = [
       "UFOの位置",
       "次の流行",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "縄文→弥生→古墳→奈良→平安→中世……ながれが一目でわかる！",
     hint: "じだい+ながれ",
   },
@@ -1908,7 +1909,7 @@ export const allQuestions: Question[] = [
       "お店のもの",
       "学校のもの",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "法律(ほうりつ)で「みんなの宝」と決められている！",
     hint: "みんなの+宝",
   },
@@ -1921,7 +1922,7 @@ export const allQuestions: Question[] = [
       "ゲームセンター",
       "スーパー",
     ],
-    answer: 0,
+    answer: 0,  // 正解は常にchoices[0]
     explanation: "職員さんはみなさんの「なぜ?」を待っている！どんどんしつもんしよう！",
     hint: "埋文+センター",
   },

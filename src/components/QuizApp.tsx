@@ -60,10 +60,18 @@ function WarpEffect({ onDone }: { onDone: () => void }) {
   );
 }
 
-// ランダムに10問選択（重複なし）
+// 選択肢をシャッフルして正解インデックスを再計算
+function shuffleChoices(q: typeof allQuestions[0]) {
+  const correctChoice = q.choices[q.answer]; // 正解テキストを保持
+  const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+  const newAnswerIndex = shuffled.indexOf(correctChoice);
+  return { ...q, choices: shuffled, answer: newAnswerIndex };
+}
+
+// ランダムに10問選択（重複なし）＋選択肢シャッフル
 function getRandomQuestions() {
   const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 10);
+  return shuffled.slice(0, 10).map(shuffleChoices);
 }
 
 export default function QuizApp() {
