@@ -80,8 +80,6 @@ export default function QuizApp() {
   const [nextCountdown, setNextCountdown] = useState<number | null>(null);
   const nextCountdownRef = useRef<NodeJS.Timeout | null>(null);
   const nextCountdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [bgmOn, setBgmOn] = useState(true);
-  const bgmRef = useRef<HTMLAudioElement | null>(null);
   const [phase, setPhase] = useState<Phase>("title");
   const [mood, setMood] = useState<Mood>("idle");
   const [qIndex, setQIndex] = useState(0);
@@ -262,45 +260,6 @@ export default function QuizApp() {
     stopCamera(); startQuiz();
   }, [stopCamera, startQuiz]);
 
-  // BGM常時再生（ページ読み込み時に自動再生を試行、ブロック時は初回タッチで開始）
-  useEffect(() => {
-    const audio = new Audio("/bgm.mp3");
-    audio.loop = true;
-    audio.volume = 0.3;
-    bgmRef.current = audio;
-
-    // まず自動再生を試みる
-    audio.play().catch(() => {
-      // ブロックされた場合：初回のユーザー操作で再生開始
-      const startOnInteract = () => {
-        audio.play().catch(() => {});
-        document.removeEventListener("pointerdown", startOnInteract);
-        document.removeEventListener("keydown", startOnInteract);
-        document.removeEventListener("touchstart", startOnInteract);
-      };
-      document.addEventListener("pointerdown", startOnInteract);
-      document.addEventListener("keydown", startOnInteract);
-      document.addEventListener("touchstart", startOnInteract);
-    });
-
-    return () => {
-      audio.pause();
-      audio.src = "";
-    };
-  }, []);
-
-  // BGM ON/OFF切り替え
-  const toggleBgm = useCallback(() => {
-    setBgmOn(prev => {
-      const next = !prev;
-      if (bgmRef.current) {
-        if (next) bgmRef.current.play().catch(() => {});
-        else bgmRef.current.pause();
-      }
-      return next;
-    });
-  }, []);
-
   // 次の問題へ（早送り）
   const goNextQuestion = useCallback((isCorrect: boolean) => {
     if (nextCountdownRef.current) clearTimeout(nextCountdownRef.current);
@@ -353,20 +312,7 @@ export default function QuizApp() {
 
       {phase !== "warp" && <Particles />}
 
-      {/* BGM ON/OFFボタン（クイズ中は非表示） */}
-      {phase !== "quiz" && <button
-        onClick={toggleBgm}
-        style={{
-          position:"fixed", top:12, right:12, zIndex:150,
-          width:48, height:48, borderRadius:"50%",
-          background:"rgba(59,31,10,0.85)", border:"2px solid #C8A96E",
-          color:"#FFD700", fontSize:20, cursor:"pointer",
-          display:"flex", alignItems:"center", justifyContent:"center",
-        }}
-        aria-label="BGM切り替え"
-      >
-        {bgmOn ? "🔊" : "🔇"}
-      </button>}
+
 
       {phase === "warp" && <WarpEffect onDone={() => setPhase("register")} />}
 
